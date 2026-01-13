@@ -3,8 +3,11 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+<<<<<<< HEAD
 .vs/
 
+=======
+>>>>>>> 5ae6065 (Hello)
 # dotenv files
 .env
 
@@ -484,3 +487,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+<<<<<<< HEAD
+=======
+.vs/
+>>>>>>> 5ae6065 (Hello)
