@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DirectoryService.Domain.Shared
+﻿namespace DirectoryService.Domain.Shared
 {
     /// <summary>
     /// Жизненный цикл сущности (время создания, обновления, состояние активности).

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-
-namespace DirectoryService.Domain.DepartmentsContext.ValueObjects
+﻿namespace DirectoryService.Domain.DepartmentsContext.ValueObjects
 {
     /// <summary>
     /// Путь подразделения в иерархической структуре.
