@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DirectoryService.Domain.DepartmentsContext.ValueObjects
+﻿namespace DirectoryService.Domain.DepartmentsContext.ValueObjects
 {
     /// <summary>
     /// Глубина подразделения в иерархии.

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace DirectoryService.Domain.DepartmentsContext.ValueObjects
 {
@@ -125,8 +124,7 @@ namespace DirectoryService.Domain.DepartmentsContext.ValueObjects
             return $"dept-{Guid.NewGuid().ToString("n")[..8]}";
         }
 
-        public static implicit operator string(DepartmentIdentifier? identifier) =>
-            identifier?.Value ?? string.Empty;
+        public static implicit operator string(DepartmentIdentifier? identifier) => identifier?.Value ?? string.Empty;
 
         public override string ToString() => Value;
     }

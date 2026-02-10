@@ -1,11 +1,7 @@
 ﻿using DirectoryService.Domain.DepartmentsContext.ValueObjects;
-using DirectoryService.Domain.LocationsContext.ValueObjects;
 using DirectoryService.Domain.PositionsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
 using Domain.LocationsContext.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DirectoryService.Domain.DepartmentsContext
 {

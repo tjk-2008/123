@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DirectoryService.Domain.PositionsContext.ValueObjects
+﻿namespace DirectoryService.Domain.PositionsContext.ValueObjects
 {
     public sealed record PositionName
     {
