@@ -1,4 +1,4 @@
-﻿namespace Domain.LocationsContext.ValueObjects
+﻿namespace DirectoryService.Domain.LocationsContext.ValueObjects
 {
     public sealed record LocationAddress
     {
@@ -17,18 +17,20 @@
         public static LocationAddress Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
+            {
                 throw new ArgumentException("Адрес локации не может быть пустым.", nameof(value));
+            }
 
-            var parts = value
+            List<string> parts = value
                 .Split(',')
                 .Select(part => part.Trim())
                 .Where(part => !string.IsNullOrWhiteSpace(part))
                 .ToList();
 
             if (parts.Count == 0)
-                throw new ArgumentException(
-                    "Адрес локации должен содержать хотя бы одну часть.",
-                    nameof(value));
+            {
+                throw new ArgumentException("Адрес локации должен содержать хотя бы одну часть.", nameof(value));
+            }
 
             return new LocationAddress(parts);
         }
@@ -36,19 +38,19 @@
         public static LocationAddress Create(IEnumerable<string> parts)
         {
             if (!parts.Any())
-                throw new ArgumentException(
-                    "Адрес локации должен содержать хотя бы одну часть.",
-                    nameof(parts));
+            {
+                throw new ArgumentException("Адрес локации должен содержать хотя бы одну часть.", nameof(parts));
+            }
 
-            var trimmedParts = parts
+            List<string> trimmedParts = parts
                 .Select(part => part.Trim())
                 .Where(part => !string.IsNullOrWhiteSpace(part))
                 .ToList();
 
             if (trimmedParts.Count == 0)
-                throw new ArgumentException(
-                    "Адрес локации должен содержать хотя бы одну часть.",
-                    nameof(parts));
+            {
+                throw new ArgumentException("Адрес локации должен содержать хотя бы одну часть.", nameof(parts));
+            }
 
             return new LocationAddress(trimmedParts);
         }

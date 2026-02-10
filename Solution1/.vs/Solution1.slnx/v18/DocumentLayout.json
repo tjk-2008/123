@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|e:\\\u043A\u043B\u043E\u043D\\123\\solution1\\domain\\departmentscontext\\valueobjects\\departmentidentifier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|solutionrelative:domain\\departmentscontext\\valueobjects\\departmentidentifier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|e:\\\u043A\u043B\u043E\u043D\\123\\solution1\\domain\\locationscontext\\valueobjects\\locationaddress.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|solutionrelative:domain\\locationscontext\\valueobjects\\locationaddress.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|e:\\\u043A\u043B\u043E\u043D\\123\\solution1\\domain\\departmentscontext\\valueobjects\\departmentpath.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|solutionrelative:domain\\departmentscontext\\valueobjects\\departmentpath.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|e:\\\u043A\u043B\u043E\u043D\\123\\solution1\\domain\\departmentscontext\\valueobjects\\departmentname.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|solutionrelative:domain\\departmentscontext\\valueobjects\\departmentname.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|e:\\\u043A\u043B\u043E\u043D\\123\\solution1\\domain\\departmentscontext\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{19D2E1CD-7E3D-42D3-961E-9BD9CC36B1B3}|Domain\\DirectoryService.Domain.csproj|solutionrelative:domain\\departmentscontext\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,40 +27,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "DepartmentIdentifier.cs",
-              "DocumentMoniker": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\DepartmentsContext\\ValueObjects\\DepartmentIdentifier.cs",
-              "RelativeDocumentMoniker": "Domain\\DepartmentsContext\\ValueObjects\\DepartmentIdentifier.cs",
-              "ToolTip": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\DepartmentsContext\\ValueObjects\\DepartmentIdentifier.cs",
-              "RelativeToolTip": "Domain\\DepartmentsContext\\ValueObjects\\DepartmentIdentifier.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAAwCAAAAA2AAAAAAAAAA==",
+              "Title": "LocationAddress.cs",
+              "DocumentMoniker": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\LocationsContext\\ValueObjects\\LocationAddress.cs",
+              "RelativeDocumentMoniker": "Domain\\LocationsContext\\ValueObjects\\LocationAddress.cs",
+              "ToolTip": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\LocationsContext\\ValueObjects\\LocationAddress.cs",
+              "RelativeToolTip": "Domain\\LocationsContext\\ValueObjects\\LocationAddress.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-10T03:19:08.713Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "DepartmentName.cs",
-              "DocumentMoniker": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\DepartmentsContext\\ValueObjects\\DepartmentName.cs",
-              "RelativeDocumentMoniker": "Domain\\DepartmentsContext\\ValueObjects\\DepartmentName.cs",
-              "ToolTip": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\DepartmentsContext\\ValueObjects\\DepartmentName.cs",
-              "RelativeToolTip": "Domain\\DepartmentsContext\\ValueObjects\\DepartmentName.cs",
-              "ViewState": "AgIAAC8AAAAAAAAAAAAgwDgAAAA9AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-10T03:16:24.465Z",
+              "WhenOpened": "2026-02-10T15:44:51.125Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "DepartmentPath.cs",
-              "DocumentMoniker": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\DepartmentsContext\\ValueObjects\\DepartmentPath.cs",
-              "RelativeDocumentMoniker": "Domain\\DepartmentsContext\\ValueObjects\\DepartmentPath.cs",
-              "ToolTip": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\DepartmentsContext\\ValueObjects\\DepartmentPath.cs",
-              "RelativeToolTip": "Domain\\DepartmentsContext\\ValueObjects\\DepartmentPath.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "Department.cs",
+              "DocumentMoniker": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\DepartmentsContext\\Department.cs",
+              "RelativeDocumentMoniker": "Domain\\DepartmentsContext\\Department.cs",
+              "ToolTip": "E:\\\u041A\u041B\u041E\u041D\\123\\Solution1\\Domain\\DepartmentsContext\\Department.cs*",
+              "RelativeToolTip": "Domain\\DepartmentsContext\\Department.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAF8AAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-10T03:16:17.724Z",
+              "WhenOpened": "2026-02-10T14:33:20.893Z",
               "EditorCaption": ""
             }
           ]

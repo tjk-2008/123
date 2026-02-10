@@ -1,4 +1,4 @@
-﻿namespace Domain.LocationsContext.ValueObjects
+﻿namespace DirectoryService.Domain.LocationsContext.ValueObjects
 {
     public sealed record LocationName
     {
@@ -15,17 +15,25 @@
         public static LocationName Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
+            {
                 throw new ArgumentException("Название локации не может быть пустым.", nameof(value));
+            }
 
             if (value.Length > MaxLength)
+            {
                 throw new ArgumentException(
                     $"Название локации не может превышать {MaxLength} символов.",
-                    nameof(value));
+                    nameof(value)
+                );
+            }
 
             if (value.Length < MinLength)
+            {
                 throw new ArgumentException(
                     $"Название локации должно быть от {MinLength} до {MaxLength} символов.",
-                    nameof(value));
+                    nameof(value)
+                );
+            }
 
             return new LocationName(value);
         }
