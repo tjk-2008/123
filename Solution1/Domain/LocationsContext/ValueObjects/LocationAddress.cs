@@ -35,24 +35,33 @@
             return new LocationAddress(parts);
         }
 
-        public static LocationAddress Create(IEnumerable<string> parts)
+        public static LocationAddress CreateWithoutMultipleEnumerations(IEnumerable<string> parts)
         {
-            if (!parts.Any())
+            ArgumentNullException.ThrowIfNull(parts);
+
+            // Создаем список, но не заполняем его сразу
+            List<string> resultParts = new List<string>();
+
+            foreach (string part in parts)
+            {
+                if (part == null)
+                {
+                    throw new ArgumentException("Часть адреса не может быть null.", nameof(parts));
+                }
+
+                string trimmed = part.Trim();
+                if (!string.IsNullOrWhiteSpace(trimmed))
+                {
+                    resultParts.Add(trimmed);
+                }
+            }
+
+            if (resultParts.Count == 0)
             {
                 throw new ArgumentException("Адрес локации должен содержать хотя бы одну часть.", nameof(parts));
             }
 
-            List<string> trimmedParts = parts
-                .Select(part => part.Trim())
-                .Where(part => !string.IsNullOrWhiteSpace(part))
-                .ToList();
-
-            if (trimmedParts.Count == 0)
-            {
-                throw new ArgumentException("Адрес локации должен содержать хотя бы одну часть.", nameof(parts));
-            }
-
-            return new LocationAddress(trimmedParts);
+            return new LocationAddress(resultParts);
         }
     }
 }
