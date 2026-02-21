@@ -6,7 +6,7 @@ namespace DirectoryService.Domain.Positions
     public class Position
     {
         public PositionId Id { get; }
-        public PositionName Name { get; set; }
+        public PositionName Name { get; private set; }
         public PositionDescription Description { get; }
         public bool IsActive { get; }
         public EntityLifeTime LifeTime { get; set; }
@@ -33,6 +33,18 @@ namespace DirectoryService.Domain.Positions
                 throw new InvalidOperationException("Сущность удалена");
             }
             Name = newname;
+            LifeTime = LifeTime.Update();
+        }
+        public void ChangePositionName(PositionName newName, Func<PositionName, bool> isNameUnique)
+        {
+
+            // Проверка уникальности названия (в рамках всей системы)
+            if (!isNameUnique(newName))
+            {
+                throw new InvalidOperationException("Должность с таким названием уже существует в системе.");
+            }
+
+            Name = newName;
             LifeTime = LifeTime.Update();
         }
     }

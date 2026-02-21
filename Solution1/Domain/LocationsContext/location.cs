@@ -1,13 +1,14 @@
 ﻿using DirectoryService.Domain.LocationsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
+using System.Net;
 
 namespace DirectoryService.Domain.LocationsContext
 {
     public class Location
     {
-        public LocationId Id { get; }
-        public LocationName Name { get; }
-        public LocationAddress Address { get; }
+        public LocationId Id { get;  }
+        public LocationName Name { get; set; }
+        public LocationAddress Address { get; set; }
         public IanaTimeZone TimeZone { get; set; }
         public EntityLifeTime LifeTime { get; set; }
 
@@ -34,6 +35,26 @@ namespace DirectoryService.Domain.LocationsContext
             }
 
             TimeZone = newname;
+            LifeTime = LifeTime.Update();
+        }
+        public void ChrgeAddress(LocationAddress newname)
+        {
+            if (!LifeTime.IsActive)
+            {
+                throw new InvalidOperationException("Локация не активна");
+            }
+
+            Address = newname;
+            LifeTime = LifeTime.Update();
+        }
+        public void ChrgeName(LocationName newname)
+        {
+            if (!LifeTime.IsActive)
+            {
+                throw new InvalidOperationException(" Название не активна ");
+            }
+
+            Name = newname;
             LifeTime = LifeTime.Update();
         }
     }
