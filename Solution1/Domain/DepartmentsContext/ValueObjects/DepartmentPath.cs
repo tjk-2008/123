@@ -52,7 +52,9 @@
 
         public short CalculateDepth()
         {
-            return (short)Value.Count(c => c == '.');
+            // Для "it" - 0 точек, но глубина = 1
+            // Для "it.dev" - 1 точка, глубина = 2
+            return (short)(Value.Count(c => c == '.') + 1);
         }
 
         public string GetParentPath()

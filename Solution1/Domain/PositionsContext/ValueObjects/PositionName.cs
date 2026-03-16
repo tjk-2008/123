@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Domain.Positions.ValueObjects
+﻿namespace DirectoryService.Domain.PositionsContext.ValueObjects
 {
     public sealed record PositionName
     {

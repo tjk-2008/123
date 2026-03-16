@@ -1,16 +1,15 @@
 ﻿using DirectoryService.Domain.LocationsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
-using System.Net;
 
 namespace DirectoryService.Domain.LocationsContext
 {
     public class Location
     {
-        public LocationId Id { get;  }
-        public LocationName Name { get; set; }
-        public LocationAddress Address { get; set; }
-        public IanaTimeZone TimeZone { get; set; }
-        public EntityLifeTime LifeTime { get; set; }
+        public LocationId Id { get; }
+        public LocationName Name { get; private set; }
+        public LocationAddress Address { get; private set; }
+        public IanaTimeZone TimeZone { get; private set; }
+        public EntityLifeTime LifeTime { get; private set; }
 
         public Location(
             LocationId id,
@@ -27,34 +26,51 @@ namespace DirectoryService.Domain.LocationsContext
             LifeTime = lifeTime;
         }
 
-        public void ChangeIanaTimeZone(IanaTimeZone newname)
+        public void ChangeTimeZone(IanaTimeZone newTimeZone) // переименовал
         {
-            if (!LifeTime.IsActive)
+            if (LifeTime == null)
             {
-                throw new InvalidOperationException("Сущность удалена");
+                throw new InvalidOperationException("LifeTime не инициализирован");
             }
 
-            TimeZone = newname;
-            LifeTime = LifeTime.Update();
-        }
-        public void ChrgeAddress(LocationAddress newname)
-        {
             if (!LifeTime.IsActive)
             {
                 throw new InvalidOperationException("Локация не активна");
             }
 
-            Address = newname;
+            TimeZone = newTimeZone;
             LifeTime = LifeTime.Update();
         }
-        public void ChrgeName(LocationName newname)
+
+        public void ChangeAddress(LocationAddress newAddress) // переименовал с ChrgeAddress
         {
-            if (!LifeTime.IsActive)
+            if (LifeTime == null)
             {
-                throw new InvalidOperationException(" Название не активна ");
+                throw new InvalidOperationException("LifeTime не инициализирован");
             }
 
-            Name = newname;
+            if (!LifeTime.IsActive)
+            {
+                throw new InvalidOperationException("Локация не активна");
+            }
+
+            Address = newAddress;
+            LifeTime = LifeTime.Update();
+        }
+
+        public void ChangeName(LocationName newName) // заменил ChrgeName и ChangeName
+        {
+            if (LifeTime == null)
+            {
+                throw new InvalidOperationException("LifeTime не инициализирован");
+            }
+
+            if (!LifeTime.IsActive)
+            {
+                throw new InvalidOperationException("Локация не активна");
+            }
+
+            Name = newName;
             LifeTime = LifeTime.Update();
         }
     }

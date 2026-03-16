@@ -1,7 +1,7 @@
 ﻿using DirectoryService.Domain.DepartmentsContext.ValueObjects;
 using DirectoryService.Domain.LocationsContext;
 using DirectoryService.Domain.Shared;
-using DirectoryService.Domain.Positions;
+using DirectoryService.Domain.PositionsContext;
 namespace DirectoryService.Domain.DepartmentsContext
 {
     public class Department
@@ -15,17 +15,15 @@ namespace DirectoryService.Domain.DepartmentsContext
         public bool IsActive { get; }
         public EntityLifeTime LifeTime { get; set; }
 
-        // Фабричный метод для создания корневого подразделения
         public static Department CreateRoot(DepartmentName name, DepartmentIdentifier identifier, bool isActive = true)
         {
             DepartmentId id = DepartmentId.Create();
             DepartmentPath path = DepartmentPath.CreateForRoot(identifier.Value);
-            DepartmentDepth depth = DepartmentDepth.CalculateFromPath(path);
-            EntityLifeTime lifeTime = EntityLifeTime.Create(createdAt: DateTime.UtcNow, updatedAt: DateTime.UtcNow);
+            DepartmentDepth depth = DepartmentDepth.CalculateFromPath(path); // должно вернуть 1
+            EntityLifeTime lifeTime = EntityLifeTime.Create();
 
             return new Department(id, name, identifier, null, path, depth, isActive, lifeTime);
         }
-
         // Фабричный метод для создания дочернего подразделения
         public static Department CreateChild(
             DepartmentName name,
