@@ -1,7 +1,7 @@
-﻿using DirectoryService.Domain.Positions.ValueObjects;
+﻿using DirectoryService.Domain.PositionsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
 
-namespace DirectoryService.Domain.Positions
+namespace DirectoryService.Domain.PositionsContext
 {
     public class Position
     {
