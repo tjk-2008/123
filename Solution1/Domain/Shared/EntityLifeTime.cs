@@ -5,22 +5,12 @@
         public DateTime CreatedAt { get; }
         public DateTime UpdatedAt { get; }
         public bool IsActive { get; }
-        public DateTime UtcNow1 { get; }
-        public DateTime UtcNow2 { get; }
-        public DateTime UtcNow3 { get; }
 
         private EntityLifeTime(DateTime createdAt, DateTime updatedAt, bool isActive)
         {
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
             IsActive = isActive;
-        }
-
-        public EntityLifeTime(DateTime utcNow1, DateTime utcNow2, DateTime utcNow3)
-        {
-            UtcNow1 = utcNow1;
-            UtcNow2 = utcNow2;
-            UtcNow3 = utcNow3;
         }
 
         public static EntityLifeTime Create()

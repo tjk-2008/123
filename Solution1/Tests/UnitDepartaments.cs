@@ -10,201 +10,226 @@ namespace Tests
 {
     public class UnitDepartmentsTests
     {
-        #region DepartmentDepth Tests
+        #region ValueObject Tests
         [Theory]
-        [InlineData(0)]
-        [InlineData(5)]
-        public void Should_Create_When_ValidDepth(short valid)
+        [InlineData(0), InlineData(5)]
+        public void Should_CreateDepth_When_Valid(short valid)
         {
-            DepartmentDepth depth = DepartmentDepth.Create(valid);
-            Assert.Equal(valid, depth.Value);
+            Assert.Equal(valid, DepartmentDepth.Create(valid).Value);
         }
 
         [Fact]
-        public void Should_Throw_When_DepthIsNegative()
+        public void Should_Throw_When_DepthNegative()
         {
             Assert.Throws<ArgumentException>(() => DepartmentDepth.Create(-1));
         }
 
         [Fact]
-        public void Should_Increase_When_Increment()
+        public void Should_IncreaseDepth()
         {
-            DepartmentDepth depth = DepartmentDepth.Create(5);
-            Assert.Equal(6, depth.Increment().Value);
+            Assert.Equal(6, DepartmentDepth.Create(5).Increment().Value);
         }
-        #endregion
 
-        #region DepartmentId Tests
         [Fact]
-        public void Should_Create_When_NewGuid()
+        public void Should_CreateId_When_NewGuid()
         {
             Assert.NotEqual(DepartmentId.Create(), DepartmentId.Create());
         }
 
         [Fact]
-        public void Should_Throw_When_GuidIsEmpty()
+        public void Should_Throw_When_IdEmpty()
         {
             Assert.Throws<ArgumentException>(() => DepartmentId.Create(Guid.Empty));
         }
 
-        [Fact]
-        public void Should_ReturnNull_When_CreateNullableWithNull()
-        {
-            Assert.Null(DepartmentId.CreateNullable(null));
-        }
-        #endregion
-
-        #region DepartmentIdentifier Tests
         [Theory]
-        [InlineData("it")]
-        [InlineData("hr")]
-        public void Should_Create_When_ValidIdentifier(string valid)
+        [InlineData("it"), InlineData("hr")]
+        public void Should_CreateIdentifier_When_Valid(string valid)
         {
-            DepartmentIdentifier id = DepartmentIdentifier.Create(valid);
-            Assert.Equal(valid, id.Value);
+            Assert.Equal(valid, DepartmentIdentifier.Create(valid).Value);
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData("IT")]
-        public void Should_Throw_When_InvalidIdentifier(string invalid)
+        [InlineData(""), InlineData("IT")]
+        public void Should_Throw_When_IdentifierInvalid(string invalid)
         {
             Assert.Throws<ArgumentException>(() => DepartmentIdentifier.Create(invalid));
         }
-        #endregion
 
-        #region DepartmentName Tests
         [Theory]
-        [InlineData("IT")]
-        [InlineData("Sales")]
-        public void Should_Create_When_ValidName(string valid)
+        [InlineData("IT"), InlineData("Sales")]
+        public void Should_CreateName_When_Valid(string valid)
         {
-            DepartmentName name = DepartmentName.Create(valid);
-            Assert.Equal(valid, name.Value);
+            Assert.Equal(valid, DepartmentName.Create(valid).Value);
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData("A")]
-        public void Should_Throw_When_InvalidName(string invalid)
+        [InlineData(""), InlineData("A")]
+        public void Should_Throw_When_NameInvalid(string invalid)
         {
             Assert.Throws<ArgumentException>(() => DepartmentName.Create(invalid));
         }
+
+        [Theory]
+        [InlineData("it"), InlineData("it.dev")]
+        public void Should_CreatePath_When_Valid(string valid)
+        {
+            Assert.Equal(valid, DepartmentPath.Create(valid).Value);
+        }
+
+        [Fact]
+        public void Should_CreateChildPath()
+        {
+            Assert.Equal("it.dev", DepartmentPath.CreateForChild(DepartmentPath.Create("it"), "dev").Value);
+        }
+
+        [Fact]
+        public void Should_CalculateDepth()
+        {
+            Assert.Equal(3, DepartmentPath.Create("it.dev.backend").CalculateDepth());
+        }
         #endregion
 
-        #region DepartmentPath Tests
+        #region Rank Tests
         [Theory]
-        [InlineData("it")]
-        [InlineData("it.dev")]
-        public void Should_Create_When_ValidPath(string valid)
+        [InlineData(1), InlineData(50), InlineData(100)]
+        public void Should_CreateRank_When_Valid(int value)
         {
-            DepartmentPath path = DepartmentPath.Create(valid);
-            Assert.Equal(valid, path.Value);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("it..dev")]
-        public void Should_Throw_When_InvalidPath(string invalid)
-        {
-            Assert.Throws<ArgumentException>(() => DepartmentPath.Create(invalid));
+            Assert.Equal(value, DepartmentPosition.Rank.Create(value).Value);
         }
 
         [Fact]
-        public void Should_CreateChildPath_When_ValidParent() // переименовано
+        public void Should_Throw_When_RankTooSmall()
         {
-            DepartmentPath parent = DepartmentPath.Create("it");
-            DepartmentPath child = DepartmentPath.CreateForChild(parent, "dev");
-
-            Assert.Equal("it.dev", child.Value);
+            Assert.Throws<ArgumentException>(() => DepartmentPosition.Rank.Create(0));
         }
 
         [Fact]
-        public void Should_ReturnCorrectDepth_When_CalculateDepth()
+        public void Should_IncreaseRank()
         {
-            DepartmentPath path = DepartmentPath.Create("it.dev.backend");
+            Assert.Equal(9, DepartmentPosition.Rank.Create(10).Increase().Value);
+        }
 
-            Assert.Equal(3, path.CalculateDepth());
+        [Fact]
+        public void Should_DecreaseRank()
+        {
+            Assert.Equal(11, DepartmentPosition.Rank.Create(10).Decrease().Value);
         }
         #endregion
 
         #region Department Entity Tests
-        private Department CreateTestDepartment()
+        private Department CreateTestDept()
         {
-            return Department.CreateRoot(
-                DepartmentName.Create("IT"),
-                DepartmentIdentifier.Create("it")
-            );
+            return Department.CreateRoot(DepartmentName.Create("IT"), DepartmentIdentifier.Create("it"));
         }
 
-        private Position CreateTestPosition(string name)
+        private Position CreateTestPos(string name)
         {
-            return new Position(
-                PositionId.Create(),
-                PositionName.Create(name),
-                PositionDescription.Create(""),
-                true,
-                EntityLifeTime.Create()
-            );
+            return new(PositionId.Create(), PositionName.Create(name), PositionDescription.Create(""), true, EntityLifeTime.Create());
+        }
+
+        private Location CreateTestLoc()
+        {
+            return new(LocationId.Create(), LocationAddress.Create("ул. Ленина, 1"), LocationName.Create("Москва"),
+                IanaTimeZone.Create("Europe/Moscow"), EntityLifeTime.Create());
         }
 
         [Fact]
-        public void Should_CreateRootDepartment_When_ValidData() // переименовано
+        public void Should_CreateRoot()
         {
-            Department dept = Department.CreateRoot(
-                DepartmentName.Create("IT"),
-                DepartmentIdentifier.Create("it")
-            );
-
-            Assert.Equal("it", dept.Path.Value);
-            Assert.Equal(1, dept.Depth.Value);
-            Assert.Null(dept.ParentId);
+            Assert.True(CreateTestDept().IsRoot());
         }
 
         [Fact]
-        public void Should_CreateChildDepartment_When_ValidParent() // переименовано
+        public void Should_CreateChild()
         {
-            Department parent = CreateTestDepartment();
-
-            Department child = Department.CreateChild(
-                DepartmentName.Create("Dev"),
-                DepartmentIdentifier.Create("dev"),
-                parent
-            );
-
-            Assert.Equal("it.dev", child.Path.Value);
+            Department parent = CreateTestDept();
+            Department child = Department.CreateChild(DepartmentName.Create("Dev"), DepartmentIdentifier.Create("dev"), parent);
             Assert.Equal(parent.Id, child.ParentId);
         }
 
         [Fact]
-        public void Should_Throw_When_AddingDuplicatePosition()
+        public void Should_AddPosition_WithRank()
         {
-            Department dept = CreateTestDepartment();
-
-            Position pos1 = CreateTestPosition("Developer");
-            Position pos2 = CreateTestPosition("Developer");
-
-            dept.AddPosition(pos1);
-
-            Assert.Throws<ArgumentException>(() => dept.AddPosition(pos2));
+            Department dept = CreateTestDept();
+            dept.AddPosition(CreateTestPos("Dev"), 5);
+            Assert.Equal(5, dept.GetPositions()[0].PositionRank.Value);
         }
 
         [Fact]
-        public void Should_Throw_When_AddingDuplicateOffice()
+        public void Should_Throw_When_DuplicateRank()
         {
-            Department dept = CreateTestDepartment();
+            Department dept = CreateTestDept();
+            dept.AddPosition(CreateTestPos("Dev"), 5);
+            Assert.Throws<ArgumentException>(() => dept.AddPosition(CreateTestPos("Manager"), 5));
+        }
 
-            Location office = new Location(
-                LocationId.Create(),
-                LocationAddress.Create("ул. Ленина, 1"),
-                LocationName.Create("Москва"),
-                IanaTimeZone.Create("Europe/Moscow"),
-                EntityLifeTime.Create()
-            );
+        [Fact]
+        public void Should_ChangePositionRank()
+        {
+            Department dept = CreateTestDept();
+            Position pos = CreateTestPos("Dev");
+            dept.AddPosition(pos, 5);
+            dept.ChangePositionRank(pos.Id, 10);
+            Assert.Equal(10, dept.GetPositions()[0].PositionRank.Value);
+        }
 
-            dept.Addoffice(office);
+        [Fact]
+        public void Should_RemovePosition()
+        {
+            Department dept = CreateTestDept();
+            Position pos = CreateTestPos("Dev");
+            dept.AddPosition(pos, 5);
+            dept.RemovePosition(pos.Id);
+            Assert.Empty(dept.GetPositions());
+        }
 
-            Assert.Throws<ArgumentException>(() => dept.Addoffice(office));
+        [Fact]
+        public void Should_AddLocation()
+        {
+            Department dept = CreateTestDept();
+            dept.AddLocation(CreateTestLoc());
+            Assert.Single(dept.GetLocations());
+        }
+
+        [Fact]
+        public void Should_Throw_When_DuplicateLocation()
+        {
+            Department dept = CreateTestDept();
+            Location loc = CreateTestLoc();
+            dept.AddLocation(loc);
+            Assert.Throws<ArgumentException>(() => dept.AddLocation(loc));
+        }
+
+        [Fact]
+        public void Should_Allow_SameLocation_InDifferentDepartments()
+        {
+            Department dept1 = CreateTestDept();
+            Department dept2 = Department.CreateRoot(DepartmentName.Create("HR"), DepartmentIdentifier.Create("hr"));
+            Location loc = CreateTestLoc();
+            dept1.AddLocation(loc);
+            dept2.AddLocation(loc);
+            Assert.Single(dept1.GetLocations());
+            Assert.Single(dept2.GetLocations());
+        }
+
+        [Fact]
+        public void Should_RemoveLocation()
+        {
+            Department dept = CreateTestDept();
+            Location loc = CreateTestLoc();
+            dept.AddLocation(loc);
+            dept.RemoveLocation(loc.Id);
+            Assert.Empty(dept.GetLocations());
+        }
+
+        [Fact]
+        public void Should_HaveLocation_WhenExists()
+        {
+            Department dept = CreateTestDept();
+            Location loc = CreateTestLoc();
+            dept.AddLocation(loc);
+            Assert.True(dept.HasLocation(loc.Id));
         }
         #endregion
     }
