@@ -18,13 +18,12 @@ namespace DirectoryService.Domain.DepartmentsContext
         public bool IsActive { get; }
         public EntityLifeTime LifeTime { get; private set; }
 
-        private readonly List<DepartmentPosition> _positions = [];
-        private readonly List<DepartmentLocation> _locations = [];
+        private readonly List<DepartmentPosition> _positions = new List<DepartmentPosition>();
+        private readonly List<DepartmentLocation> _locations = new List<DepartmentLocation>();
 
         public IReadOnlyList<DepartmentPosition> Positions => _positions.AsReadOnly();
         public IReadOnlyList<DepartmentLocation> Locations => _locations.AsReadOnly();
 
-        // Фабричный метод для создания корневого подразделения
         public static Department CreateRoot(DepartmentName name, DepartmentIdentifier identifier, bool isActive = true)
         {
             DepartmentId id = DepartmentId.Create();
@@ -35,7 +34,6 @@ namespace DirectoryService.Domain.DepartmentsContext
             return new Department(id, name, identifier, null, path, depth, isActive, lifeTime);
         }
 
-        // Фабричный метод для создания дочернего подразделения
         public static Department CreateChild(
             DepartmentName name,
             DepartmentIdentifier identifier,
@@ -51,7 +49,6 @@ namespace DirectoryService.Domain.DepartmentsContext
             return new Department(id, name, identifier, parent.Id, path, depth, isActive, lifeTime);
         }
 
-        // Закрытый конструктор
         private Department(
             DepartmentId id,
             DepartmentName name,
@@ -73,7 +70,6 @@ namespace DirectoryService.Domain.DepartmentsContext
             LifeTime = lifeTime;
         }
 
-        // Метод для изменения активности
         public Department ChangeActivity(bool isActive)
         {
             EntityLifeTime updatedLifeTime = EntityLifeTime.Create(
@@ -85,13 +81,11 @@ namespace DirectoryService.Domain.DepartmentsContext
             return new Department(Id, Name, Identifier, ParentId, Path, Depth, isActive, updatedLifeTime);
         }
 
-        // Метод для проверки, является ли подразделение корневым
         public bool IsRoot()
         {
             return ParentId == null;
         }
 
-        // Метод для проверки, является ли подразделение дочерним относительно другого
         public bool IsChildOf(Department parent)
         {
             if (parent == null)
@@ -102,27 +96,30 @@ namespace DirectoryService.Domain.DepartmentsContext
             return Path.Value.StartsWith(parent.Path.Value + ".", StringComparison.InvariantCultureIgnoreCase);
         }
 
-        // ========== Методы для работы с должностями (связь многие ко многим через DepartmentPosition) ==========
+        // ========== Методы для работы с должностями ==========
 
-        public void AddPosition(Position position, int rank)
+        public void AddPosition(Position position, Rank rank)
         {
             ArgumentNullException.ThrowIfNull(position);
+            ArgumentNullException.ThrowIfNull(rank);
 
             if (_positions.Any(p => p.PositionId == position.Id))
             {
                 throw new ArgumentException("Должность уже добавлена в подразделение");
             }
 
-            if (_positions.Any(p => p.PositionRank.Value == rank))
-            {
-                throw new ArgumentException("Ранг уже используется в подразделении");
-            }
-
-            _positions.Add(new DepartmentPosition(Id, position.Id, rank));
+            DepartmentPosition departmentPosition = new DepartmentPosition(Id, position.Id, rank);
+            _positions.Add(departmentPosition);
             LifeTime = LifeTime.Update();
         }
 
-        public void ChangePositionRank(PositionId positionId, int newRank)
+        public void AddPosition(Position position, int rankValue)
+        {
+            Rank rank = Rank.Create(rankValue);
+            AddPosition(position, rank);
+        }
+
+        public void ChangePositionRank(PositionId positionId, Rank newRank)
         {
             DepartmentPosition? deptPosition = _positions.FirstOrDefault(p => p.PositionId == positionId);
             if (deptPosition == null)
@@ -130,13 +127,14 @@ namespace DirectoryService.Domain.DepartmentsContext
                 throw new ArgumentException("Должность не найдена в подразделении");
             }
 
-            if (_positions.Any(p => p.PositionRank.Value == newRank && p.PositionId != positionId))
-            {
-                throw new ArgumentException("Ранг уже используется");
-            }
-
             deptPosition.ChangeRank(newRank);
             LifeTime = LifeTime.Update();
+        }
+
+        public void ChangePositionRank(PositionId positionId, int newRankValue)
+        {
+            Rank newRank = Rank.Create(newRankValue);
+            ChangePositionRank(positionId, newRank);
         }
 
         public void RemovePosition(PositionId positionId)
@@ -156,23 +154,34 @@ namespace DirectoryService.Domain.DepartmentsContext
             return _positions.AsReadOnly();
         }
 
-        // ========== Методы для работы с офисами (связь многие ко многим через DepartmentLocation) ==========
+        // ========== Методы для работы с офисами ==========
 
         public void AddLocation(Location location)
         {
             ArgumentNullException.ThrowIfNull(location);
+
+            if (!LifeTime.IsActive)
+            {
+                throw new InvalidOperationException("Нельзя добавить офис в архивированное подразделение");
+            }
 
             if (_locations.Any(l => l.LocationId == location.Id))
             {
                 throw new ArgumentException("Офис уже добавлен в подразделение");
             }
 
-            _locations.Add(new DepartmentLocation(Id, location.Id));
+            DepartmentLocation departmentLocation = new DepartmentLocation(Id, location.Id);
+            _locations.Add(departmentLocation);
             LifeTime = LifeTime.Update();
         }
 
         public void RemoveLocation(LocationId locationId)
         {
+            if (!LifeTime.IsActive)
+            {
+                throw new InvalidOperationException("Нельзя удалить офис из архивированного подразделения");
+            }
+
             DepartmentLocation? deptLocation = _locations.FirstOrDefault(l => l.LocationId == locationId);
             if (deptLocation == null)
             {
@@ -181,11 +190,6 @@ namespace DirectoryService.Domain.DepartmentsContext
 
             _locations.Remove(deptLocation);
             LifeTime = LifeTime.Update();
-        }
-
-        public IReadOnlyList<DepartmentLocation> GetLocations()
-        {
-            return _locations.AsReadOnly();
         }
 
         public bool HasLocation(LocationId locationId)
