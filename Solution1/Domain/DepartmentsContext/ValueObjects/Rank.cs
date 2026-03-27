@@ -4,7 +4,6 @@
     {
         public const int MinRank = 1;
         public const int MaxRank = 100;
-
         public int Value { get; }
 
         private Rank(int value)
@@ -24,22 +23,22 @@
 
         public Rank Increase()
         {
-            if (Value == MinRank)
+            if (Value == MaxRank)
             {
                 throw new InvalidOperationException("Нельзя повысить ранг выше максимального");
             }
 
-            return new Rank(Value - 1);
+            return new Rank(Value + 1);
         }
 
         public Rank Decrease()
         {
-            if (Value == MaxRank)
+            if (Value == MinRank)
             {
                 throw new InvalidOperationException("Нельзя понизить ранг ниже минимального");
             }
 
-            return new Rank(Value + 1);
+            return new Rank(Value - 1);
         }
     }
 }

@@ -18,8 +18,8 @@ namespace DirectoryService.Domain.DepartmentsContext
         public bool IsActive { get; }
         public EntityLifeTime LifeTime { get; private set; }
 
-        private readonly List<DepartmentPosition> _positions = new List<DepartmentPosition>();
-        private readonly List<DepartmentLocation> _locations = new List<DepartmentLocation>();
+        private readonly List<DepartmentPosition> _positions = new();
+        private readonly List<DepartmentLocation> _locations = new();
 
         public IReadOnlyList<DepartmentPosition> Positions => _positions.AsReadOnly();
         public IReadOnlyList<DepartmentLocation> Locations => _locations.AsReadOnly();
@@ -29,36 +29,19 @@ namespace DirectoryService.Domain.DepartmentsContext
             DepartmentId id = DepartmentId.Create();
             DepartmentPath path = DepartmentPath.CreateForRoot(identifier.Value);
             DepartmentDepth depth = DepartmentDepth.CalculateFromPath(path);
-            EntityLifeTime lifeTime = EntityLifeTime.Create();
-
-            return new Department(id, name, identifier, null, path, depth, isActive, lifeTime);
+            return new Department(id, name, identifier, null, path, depth, isActive, EntityLifeTime.Create());
         }
 
-        public static Department CreateChild(
-            DepartmentName name,
-            DepartmentIdentifier identifier,
-            Department parent,
-            bool isActive = true
-        )
+        public static Department CreateChild(DepartmentName name, DepartmentIdentifier identifier, Department parent, bool isActive = true)
         {
             DepartmentId id = DepartmentId.Create();
             DepartmentPath path = DepartmentPath.CreateForChild(parent.Path, identifier.Value);
             DepartmentDepth depth = DepartmentDepth.CalculateFromPath(path);
-            EntityLifeTime lifeTime = EntityLifeTime.Create();
-
-            return new Department(id, name, identifier, parent.Id, path, depth, isActive, lifeTime);
+            return new Department(id, name, identifier, parent.Id, path, depth, isActive, EntityLifeTime.Create());
         }
 
-        private Department(
-            DepartmentId id,
-            DepartmentName name,
-            DepartmentIdentifier identifier,
-            DepartmentId? parentId,
-            DepartmentPath path,
-            DepartmentDepth depth,
-            bool isActive,
-            EntityLifeTime lifeTime
-        )
+        private Department(DepartmentId id, DepartmentName name, DepartmentIdentifier identifier, DepartmentId? parentId,
+            DepartmentPath path, DepartmentDepth depth, bool isActive, EntityLifeTime lifeTime)
         {
             Id = id;
             Name = name;
@@ -72,13 +55,8 @@ namespace DirectoryService.Domain.DepartmentsContext
 
         public Department ChangeActivity(bool isActive)
         {
-            EntityLifeTime updatedLifeTime = EntityLifeTime.Create(
-                createdAt: LifeTime.CreatedAt,
-                updatedAt: DateTime.UtcNow,
-                isActive: isActive
-            );
-
-            return new Department(Id, Name, Identifier, ParentId, Path, Depth, isActive, updatedLifeTime);
+            return new Department(Id, Name, Identifier, ParentId, Path, Depth, isActive,
+                EntityLifeTime.Create(LifeTime.CreatedAt, DateTime.UtcNow, isActive));
         }
 
         public bool IsRoot()
@@ -88,35 +66,26 @@ namespace DirectoryService.Domain.DepartmentsContext
 
         public bool IsChildOf(Department parent)
         {
-            if (parent == null)
-            {
-                return false;
-            }
-
-            return Path.Value.StartsWith(parent.Path.Value + ".", StringComparison.InvariantCultureIgnoreCase);
+            return parent != null && Path.Value.StartsWith(parent.Path.Value + ".", StringComparison.InvariantCultureIgnoreCase);
         }
-
-        // ========== Методы для работы с должностями ==========
 
         public void AddPosition(Position position, Rank rank)
         {
             ArgumentNullException.ThrowIfNull(position);
             ArgumentNullException.ThrowIfNull(rank);
 
+            if (!LifeTime.IsActive)
+            {
+                throw new InvalidOperationException("Нельзя добавить должность в архивированное подразделение");
+            }
+
             if (_positions.Any(p => p.PositionId == position.Id))
             {
                 throw new ArgumentException("Должность уже добавлена в подразделение");
             }
 
-            DepartmentPosition departmentPosition = new DepartmentPosition(Id, position.Id, rank);
-            _positions.Add(departmentPosition);
+            _positions.Add(new DepartmentPosition(Id, position.Id, rank));
             LifeTime = LifeTime.Update();
-        }
-
-        public void AddPosition(Position position, int rankValue)
-        {
-            Rank rank = Rank.Create(rankValue);
-            AddPosition(position, rank);
         }
 
         public void ChangePositionRank(PositionId positionId, Rank newRank)
@@ -131,12 +100,6 @@ namespace DirectoryService.Domain.DepartmentsContext
             LifeTime = LifeTime.Update();
         }
 
-        public void ChangePositionRank(PositionId positionId, int newRankValue)
-        {
-            Rank newRank = Rank.Create(newRankValue);
-            ChangePositionRank(positionId, newRank);
-        }
-
         public void RemovePosition(PositionId positionId)
         {
             DepartmentPosition? deptPosition = _positions.FirstOrDefault(p => p.PositionId == positionId);
@@ -148,13 +111,6 @@ namespace DirectoryService.Domain.DepartmentsContext
             _positions.Remove(deptPosition);
             LifeTime = LifeTime.Update();
         }
-
-        public IReadOnlyList<DepartmentPosition> GetPositions()
-        {
-            return _positions.AsReadOnly();
-        }
-
-        // ========== Методы для работы с офисами ==========
 
         public void AddLocation(Location location)
         {
@@ -170,8 +126,7 @@ namespace DirectoryService.Domain.DepartmentsContext
                 throw new ArgumentException("Офис уже добавлен в подразделение");
             }
 
-            DepartmentLocation departmentLocation = new DepartmentLocation(Id, location.Id);
-            _locations.Add(departmentLocation);
+            _locations.Add(new DepartmentLocation(Id, location.Id));
             LifeTime = LifeTime.Update();
         }
 
