@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="DirectoryService.Api/DirectoryService.Api.csproj" />
   <Project Path="Domain/DirectoryService.Domain.csproj" Id="19d2e1cd-7e3d-42d3-961e-9bd9cc36b1b3" />
   <Project Path="Tests/Tests.csproj" />
 </Solution>
