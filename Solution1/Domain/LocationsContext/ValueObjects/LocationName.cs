@@ -6,6 +6,10 @@
         public const int MinLength = 3;
 
         public string Value { get; }
+        private LocationName()
+        {
+            Value = string.Empty;
+        }
 
         private LocationName(string value)
         {

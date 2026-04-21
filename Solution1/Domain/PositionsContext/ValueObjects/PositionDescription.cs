@@ -5,6 +5,10 @@
         public const int MaxLength = 500;
 
         public string Value { get; }
+        private PositionDescription()
+        {
+            Value = string.Empty;
+        }
 
         private PositionDescription(string value)
         {

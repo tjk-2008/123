@@ -1,21 +1,35 @@
-using DirectoryService.Api;
+using DirectoryService.Application;
+using DirectoryService.Infrastructure;
+using DirectoryService.Infrastructure.Options;
+using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Добавляем контроллеры
-builder.Services.AddControllers();
+// Настройка DatabaseOptions
+DatabaseOptions databaseOptions = builder.Configuration.GetSection("Database").Get<DatabaseOptions>()
+    ?? new DatabaseOptions();
+builder.Services.AddSingleton(databaseOptions);
 
-// Добавляем Swagger
+// Регистрация DbContext
+builder.Services.AddDbContext<DirectoryDbContext>(options =>
+    options.UseNpgsql(databaseOptions.GetConnectionString()));
+
+// Регистрация Application слоя
+builder.Services.AddApplication();
+
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Регистрируем хранилища как singletons
-builder.Services.AddSingleton<LocationStorage>();
-builder.Services.AddSingleton<PositionStorage>();
-
 WebApplication app = builder.Build();
 
-// Настройка Swagger (только в разработке)
+// Применение миграций при старте
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    DirectoryDbContext dbContext = scope.ServiceProvider.GetRequiredService<DirectoryDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -24,12 +38,5 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
-
-// Инициализация хранилищ тестовыми данными
-LocationStorage locationStorage = app.Services.GetRequiredService<LocationStorage>();
-PositionStorage positionStorage = app.Services.GetRequiredService<PositionStorage>();
-
-locationStorage.InitializeStorage();
-positionStorage.InitializeStorage();
 
 app.Run();

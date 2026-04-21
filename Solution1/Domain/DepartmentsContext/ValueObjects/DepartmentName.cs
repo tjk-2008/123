@@ -6,7 +6,10 @@
         public const int MinLength = 2;
 
         public string Value { get; }
-
+        private DepartmentName()
+        {
+            Value = string.Empty;
+        }
         private DepartmentName(string value)
         {
             Value = value;

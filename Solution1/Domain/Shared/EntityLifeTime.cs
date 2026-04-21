@@ -6,6 +6,14 @@
         public DateTime UpdatedAt { get; }
         public bool IsActive { get; }
 
+        // Конструктор без параметров для EF Core
+        private EntityLifeTime()
+        {
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+            IsActive = true;
+        }
+
         private EntityLifeTime(DateTime createdAt, DateTime updatedAt, bool isActive)
         {
             CreatedAt = createdAt;

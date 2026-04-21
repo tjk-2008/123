@@ -24,6 +24,16 @@ namespace DirectoryService.Domain.DepartmentsContext
         public IReadOnlyList<DepartmentPosition> Positions => _positions.AsReadOnly();
         public IReadOnlyList<DepartmentLocation> Locations => _locations.AsReadOnly();
 
+        // Конструктор без параметров для EF Core
+        private Department() {
+            Id = null!;
+            Name = null!;
+            Identifier = null!;
+            Path = null!;
+            Depth = null!;
+            LifeTime = null!;
+        }
+
         public static Department CreateRoot(DepartmentName name, DepartmentIdentifier identifier, bool isActive = true)
         {
             DepartmentId id = DepartmentId.Create();

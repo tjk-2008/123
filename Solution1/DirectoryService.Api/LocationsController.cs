@@ -1,7 +1,9 @@
 ﻿using DirectoryService.Domain.LocationsContext;
 using DirectoryService.Domain.LocationsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
+using DirectoryService.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Api;
 
@@ -9,17 +11,20 @@ namespace DirectoryService.Api;
 [Route("api/locations")]
 public class LocationsController : ControllerBase
 {
-    private readonly LocationStorage _storage;
+    private readonly DirectoryDbContext _dbContext;
 
-    public LocationsController(LocationStorage storage)
+    public LocationsController(DirectoryDbContext dbContext)
     {
-        _storage = storage;
+        _dbContext = dbContext;
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        IEnumerable<Location> locations = _storage.GetAll();
+        List<Location> locations = await _dbContext.Locations
+            .Where(l => l.LifeTime.IsActive)
+            .ToListAsync();
+
         IEnumerable<LocationResponse> response = locations.Select(l => new LocationResponse
         {
             Id = l.Id.Value,
@@ -35,10 +40,11 @@ public class LocationsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         LocationId locationId = LocationId.Create(id);
-        Location? location = _storage.GetById(locationId);
+        Location? location = await _dbContext.Locations
+            .FirstOrDefaultAsync(l => l.Id == locationId && l.LifeTime.IsActive);
 
         if (location == null)
         {
@@ -58,7 +64,7 @@ public class LocationsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] CreateLocationRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateLocationRequest request)
     {
         try
         {
@@ -70,7 +76,8 @@ public class LocationsController : ControllerBase
                 EntityLifeTime.Create()
             );
 
-            _storage.Add(location);
+            await _dbContext.Locations.AddAsync(location);
+            await _dbContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = location.Id.Value }, new LocationResponse
             {
@@ -94,41 +101,45 @@ public class LocationsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(Guid id, [FromBody] UpdateLocationRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLocationRequest request)
     {
         try
         {
             LocationId locationId = LocationId.Create(id);
-            Location? existing = _storage.GetById(locationId);
+            Location? location = await _dbContext.Locations
+                .FirstOrDefaultAsync(l => l.Id == locationId && l.LifeTime.IsActive);
 
-            if (existing == null)
+            if (location == null)
             {
                 return NotFound($"Локация с Id {id} не найдена");
             }
 
-            LocationName updatedName = request.Name != null ? LocationName.Create(request.Name) : existing.Name;
-            LocationAddress updatedAddress = request.Address != null ? LocationAddress.Create(request.Address) : existing.Address;
-            IanaTimeZone updatedTimeZone = request.TimeZone != null ? IanaTimeZone.Create(request.TimeZone) : existing.TimeZone;
+            if (request.Name != null)
+            {
+                location.ChangeName(LocationName.Create(request.Name));
+            }
 
-            Location updated = new Location(
-                existing.Id,
-                updatedAddress,
-                updatedName,
-                updatedTimeZone,
-                existing.LifeTime.Update()
-            );
+            if (request.Address != null)
+            {
+                location.ChangeAddress(LocationAddress.Create(request.Address));
+            }
 
-            _storage.Update(updated);
+            if (request.TimeZone != null)
+            {
+                location.ChangeTimeZone(IanaTimeZone.Create(request.TimeZone));
+            }
+
+            await _dbContext.SaveChangesAsync();
 
             return Ok(new LocationResponse
             {
-                Id = updated.Id.Value,
-                Name = updated.Name.Value,
-                Address = updated.Address.Value,
-                TimeZone = updated.TimeZone.Value,
-                IsActive = updated.LifeTime.IsActive,
-                CreatedAt = updated.LifeTime.CreatedAt,
-                UpdatedAt = updated.LifeTime.UpdatedAt
+                Id = location.Id.Value,
+                Name = location.Name.Value,
+                Address = location.Address.Value,
+                TimeZone = location.TimeZone.Value,
+                IsActive = location.LifeTime.IsActive,
+                CreatedAt = location.LifeTime.CreatedAt,
+                UpdatedAt = location.LifeTime.UpdatedAt
             });
         }
         catch (ArgumentException ex)
@@ -142,19 +153,21 @@ public class LocationsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         try
         {
             LocationId locationId = LocationId.Create(id);
-            Location? existing = _storage.GetById(locationId);
+            Location? location = await _dbContext.Locations
+                .FirstOrDefaultAsync(l => l.Id == locationId && l.LifeTime.IsActive);
 
-            if (existing == null)
+            if (location == null)
             {
                 return NotFound($"Локация с Id {id} не найдена");
             }
 
-            _storage.Remove(locationId);
+            location.ChangeActivity(false);
+            await _dbContext.SaveChangesAsync();
 
             return NoContent();
         }

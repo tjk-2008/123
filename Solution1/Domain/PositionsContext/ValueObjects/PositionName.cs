@@ -7,6 +7,12 @@
 
         public string Value { get; }
 
+        // Конструктор без параметров для EF Core
+        private PositionName()
+        {
+            Value = string.Empty;
+        }
+
         private PositionName(string value)
         {
             Value = value;

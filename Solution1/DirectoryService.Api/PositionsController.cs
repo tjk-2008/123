@@ -1,8 +1,9 @@
-﻿using DirectoryService.Api;
-using DirectoryService.Domain.PositionsContext;
+﻿using DirectoryService.Domain.PositionsContext;
 using DirectoryService.Domain.PositionsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
+using DirectoryService.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Api;
 
@@ -10,17 +11,20 @@ namespace DirectoryService.Api;
 [Route("api/positions")]
 public class PositionsController : ControllerBase
 {
-    private readonly PositionStorage _storage;
+    private readonly DirectoryDbContext _dbContext;
 
-    public PositionsController(PositionStorage storage)
+    public PositionsController(DirectoryDbContext dbContext)
     {
-        _storage = storage;
+        _dbContext = dbContext;
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        IEnumerable<Position> positions = _storage.GetAll();
+        List<Position> positions = await _dbContext.Positions
+            .Where(p => p.LifeTime.IsActive)
+            .ToListAsync();
+
         IEnumerable<PositionResponse> response = positions.Select(p => new PositionResponse
         {
             Id = p.Id.Value,
@@ -35,10 +39,11 @@ public class PositionsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         PositionId positionId = PositionId.Create(id);
-        Position? position = _storage.GetById(positionId);
+        Position? position = await _dbContext.Positions
+            .FirstOrDefaultAsync(p => p.Id == positionId && p.LifeTime.IsActive);
 
         if (position == null)
         {
@@ -57,7 +62,7 @@ public class PositionsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] CreatePositionRequest request)
+    public async Task<IActionResult> Create([FromBody] CreatePositionRequest request)
     {
         try
         {
@@ -69,7 +74,8 @@ public class PositionsController : ControllerBase
                 EntityLifeTime.Create()
             );
 
-            _storage.Add(position);
+            await _dbContext.Positions.AddAsync(position);
+            await _dbContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = position.Id.Value }, new PositionResponse
             {
@@ -92,39 +98,39 @@ public class PositionsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(Guid id, [FromBody] UpdatePositionRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePositionRequest request)
     {
         try
         {
             PositionId positionId = PositionId.Create(id);
-            Position? existing = _storage.GetById(positionId);
+            Position? position = await _dbContext.Positions
+                .FirstOrDefaultAsync(p => p.Id == positionId && p.LifeTime.IsActive);
 
-            if (existing == null)
+            if (position == null)
             {
                 return NotFound($"Должность с Id {id} не найдена");
             }
 
-            PositionName updatedName = request.Name != null ? PositionName.Create(request.Name) : existing.Name;
-            PositionDescription updatedDescription = request.Description != null ? PositionDescription.Create(request.Description) : existing.Description;
+            if (request.Name != null)
+            {
+                position.ChangePositionName(PositionName.Create(request.Name));
+            }
 
-            Position updated = new Position(
-                existing.Id,
-                updatedName,
-                updatedDescription,
-                existing.IsActive,
-                existing.LifeTime.Update()
-            );
+            if (request.Description != null)
+            {
+                position.ChangeDescription(PositionDescription.Create(request.Description));
+            }
 
-            _storage.Update(updated);
+            await _dbContext.SaveChangesAsync();
 
             return Ok(new PositionResponse
             {
-                Id = updated.Id.Value,
-                Name = updated.Name.Value,
-                Description = updated.Description.Value,
-                IsActive = updated.LifeTime.IsActive,
-                CreatedAt = updated.LifeTime.CreatedAt,
-                UpdatedAt = updated.LifeTime.UpdatedAt
+                Id = position.Id.Value,
+                Name = position.Name.Value,
+                Description = position.Description.Value,
+                IsActive = position.LifeTime.IsActive,
+                CreatedAt = position.LifeTime.CreatedAt,
+                UpdatedAt = position.LifeTime.UpdatedAt
             });
         }
         catch (ArgumentException ex)
@@ -138,19 +144,21 @@ public class PositionsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         try
         {
             PositionId positionId = PositionId.Create(id);
-            Position? existing = _storage.GetById(positionId);
+            Position? position = await _dbContext.Positions
+                .FirstOrDefaultAsync(p => p.Id == positionId && p.LifeTime.IsActive);
 
-            if (existing == null)
+            if (position == null)
             {
                 return NotFound($"Должность с Id {id} не найдена");
             }
 
-            _storage.Remove(positionId);
+            position.ChangeActivity(false);
+            await _dbContext.SaveChangesAsync();
 
             return NoContent();
         }

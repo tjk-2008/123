@@ -25,6 +25,14 @@ namespace DirectoryService.Domain.LocationsContext
             TimeZone = timeZone;
             LifeTime = lifeTime;
         }
+        private Location()
+        {
+            Id = null!;
+            Name = null!;
+            Address = null!;
+            TimeZone = null!;
+            LifeTime = null!;
+        }
 
         public void ChangeTimeZone(IanaTimeZone newTimeZone) // переименовал
         {
@@ -72,6 +80,11 @@ namespace DirectoryService.Domain.LocationsContext
 
             Name = newName;
             LifeTime = LifeTime.Update();
+        }
+
+        public void ChangeActivity(bool v)
+        {
+            throw new NotImplementedException();
         }
     }
 }

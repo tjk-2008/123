@@ -4,7 +4,14 @@
     {
         public const int MinRank = 1;
         public const int MaxRank = 100;
+
         public int Value { get; }
+
+        // Конструктор без параметров для EF Core
+        private Rank()
+        {
+            Value = MinRank;
+        }
 
         private Rank(int value)
         {

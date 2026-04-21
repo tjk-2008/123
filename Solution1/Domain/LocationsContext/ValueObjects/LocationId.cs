@@ -1,5 +1,6 @@
 ﻿namespace DirectoryService.Domain.LocationsContext.ValueObjects
 {
+
     public sealed record LocationId
     {
         public Guid Value { get; }
@@ -8,6 +9,10 @@
         {
             Value = value;
         }
+        private LocationId()
+        {
+            Value = Guid.Empty;
+        } 
 
         public static LocationId Create()
         {

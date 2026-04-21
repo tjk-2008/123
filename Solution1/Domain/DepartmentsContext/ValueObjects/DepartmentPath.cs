@@ -5,6 +5,10 @@
         public const int MaxLength = 500;
 
         public string Value { get; }
+        private DepartmentPath()
+        {
+            Value = string.Empty;
+        }
 
         private DepartmentPath(string value)
         {

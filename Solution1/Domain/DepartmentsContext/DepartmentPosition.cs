@@ -9,6 +9,13 @@ namespace DirectoryService.Domain.DepartmentsContext
         public PositionId PositionId { get; }
         public Rank PositionRank { get; private set; }
 
+        // Конструктор без параметров для EF Core
+        private DepartmentPosition() {
+            DepartmentId = null!;
+            PositionId = null!;
+            PositionRank = null!;
+        }
+
         public DepartmentPosition(DepartmentId departmentId, PositionId positionId, Rank rank)
         {
             DepartmentId = departmentId;
