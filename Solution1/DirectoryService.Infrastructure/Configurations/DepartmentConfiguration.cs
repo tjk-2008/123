@@ -1,0 +1,85 @@
+﻿using DirectoryService.Domain.DepartmentsContext;
+using DirectoryService.Domain.DepartmentsContext.ValueObjects;
+using DirectoryService.Domain.Shared;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace DirectoryService.Infrastructure.Configurations
+{
+	public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
+	{
+		public void Configure(EntityTypeBuilder<Department> builder)
+		{
+			builder.ToTable("departments");
+
+			builder.HasKey(d => d.Id);
+			builder
+				.Property(d => d.Id)
+				.HasConversion(id => id.Value, value => DepartmentId.Create(value))
+				.HasColumnName("id");
+
+			builder
+				.Property(d => d.Name)
+				.HasConversion(name => name.Value, value => DepartmentName.Create(value))
+				.HasColumnName("department_name")
+				.HasMaxLength(128)
+				.IsRequired();
+
+			builder
+				.Property(d => d.Identifier)
+				.HasConversion(id => id.Value, value => DepartmentIdentifier.Create(value))
+				.HasColumnName("department_identifier")
+				.HasMaxLength(50)
+				.IsRequired();
+
+			builder
+				.Property(d => d.ParentId)
+				.HasConversion(
+					id => id != null ? id.Value : Guid.Empty,
+					value => value != Guid.Empty ? DepartmentId.Create(value) : null
+				)
+				.HasColumnName("parent_id");
+
+			builder
+				.Property(d => d.Path)
+				.HasConversion(path => path.Value, value => DepartmentPath.Create(value))
+				.HasColumnName("department_path")
+				.IsRequired();
+
+			builder
+				.Property(d => d.Depth)
+				.HasConversion(depth => depth.Value, value => DepartmentDepth.Create(value))
+				.HasColumnName("department_depth")
+				.IsRequired();
+
+			// ========== СВЯЗИ МНОГИЕ КО МНОГИМ ==========
+
+			// Связь с Position через DepartmentPosition
+			builder
+				.HasMany(d => d.Positions)
+				.WithOne()
+				.HasForeignKey(dp => dp.DepartmentId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			// Связь с Location через DepartmentLocation
+			builder
+				.HasMany(d => d.Locations)
+				.WithOne()
+				.HasForeignKey(dl => dl.DepartmentId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			// ComplexProperty для LifeTime
+			builder.ComplexProperty(
+				d => d.LifeTime,
+				complexPropertyBuilder =>
+				{
+					complexPropertyBuilder.Property(lt => lt.CreatedAt).HasColumnName("created_at").IsRequired();
+
+					complexPropertyBuilder.Property(lt => lt.UpdatedAt).HasColumnName("updated_at");
+
+					complexPropertyBuilder.Property(lt => lt.IsActive).HasColumnName("is_active").IsRequired();
+				}
+			);
+		}
+	}
+}

@@ -3,7 +3,10 @@
     public sealed record DepartmentId
     {
         public Guid Value { get; }
-
+        private DepartmentId()
+        {
+            Value = Guid.Empty;
+        }
         private DepartmentId(Guid value)
         {
             Value = value;

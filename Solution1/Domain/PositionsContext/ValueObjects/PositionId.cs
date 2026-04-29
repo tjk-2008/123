@@ -3,6 +3,10 @@
     public sealed record PositionId
     {
         public Guid Value { get; }
+        private PositionId()
+        {
+            Value = Guid.Empty;
+        }
 
         private PositionId(Guid value)
         {

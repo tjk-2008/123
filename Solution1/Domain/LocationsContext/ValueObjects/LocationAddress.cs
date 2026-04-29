@@ -7,7 +7,10 @@
         public string Value { get; }
 
         public IReadOnlyList<string> AddressParts => _addressParts.AsReadOnly();
-
+        private LocationAddress()
+        {
+            Value = string.Empty;
+        }
         private LocationAddress(IEnumerable<string> parts)
         {
             _addressParts = parts.ToList();

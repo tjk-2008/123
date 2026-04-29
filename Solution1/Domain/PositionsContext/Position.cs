@@ -25,7 +25,13 @@ namespace DirectoryService.Domain.PositionsContext
             IsActive = isActive;
             LifeTime = lifeTime;
         }
-
+        private Position()
+        {
+            Id = null!;
+            Name = null!;
+            Description = null!;
+            LifeTime = null!;
+        }
         public void ChangePositionName(PositionName newname)
         {
             if (!LifeTime.IsActive)
@@ -46,6 +52,16 @@ namespace DirectoryService.Domain.PositionsContext
 
             Name = newName;
             LifeTime = LifeTime.Update();
+        }
+
+        public void ChangeActivity(bool v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ChangeDescription(PositionDescription positionDescription)
+        {
+            throw new NotImplementedException();
         }
     }
 }

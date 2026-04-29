@@ -4,6 +4,12 @@
     {
         public string Value { get; }
 
+        // Конструктор без параметров для EF Core
+        private IanaTimeZone()
+        {
+            Value = string.Empty;
+        }
+
         private IanaTimeZone(string value)
         {
             Value = value;
@@ -37,8 +43,7 @@
 
         public static IanaTimeZone ChangeIana(string name)
         {
-            IanaTimeZone newname = Create(name);
-            return newname;
+            return Create(name);
         }
     }
 }

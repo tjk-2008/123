@@ -9,6 +9,10 @@ namespace DirectoryService.Domain.DepartmentsContext.ValueObjects
         public const int MinLength = 2;
 
         public string Value { get; }
+        private DepartmentIdentifier()
+        {
+            Value = string.Empty;
+        }
 
         private DepartmentIdentifier(string value)
         {
