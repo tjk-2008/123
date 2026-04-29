@@ -1,6 +1,7 @@
 using DirectoryService.Domain.DepartmentsContext;
 using DirectoryService.Domain.LocationsContext;
 using DirectoryService.Domain.PositionsContext;
+using DirectoryService.Infrastructure.Configurations;
 using DirectoryService.Infrastructure.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -43,7 +44,9 @@ namespace DirectoryService.Infrastructure
 			if (!optionsBuilder.IsConfigured)
 			{
 				if (_options == null)
+				{
 					throw new InvalidOperationException("DatabaseOptions не инициализированы");
+				}
 
 				optionsBuilder.UseNpgsql(_options.GetConnectionString());
 			}
@@ -51,7 +54,14 @@ namespace DirectoryService.Infrastructure
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.ApplyConfigurationsFromAssembly(typeof(DirectoryDbContext).Assembly);
+			// Сначала применяем конфигурации связующих таблиц
+			modelBuilder.ApplyConfiguration(new DepartmentPositionConfiguration());
+			modelBuilder.ApplyConfiguration(new DepartmentLocationConfiguration());
+
+			// Затем конфигурации основных сущностей
+			modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
+			modelBuilder.ApplyConfiguration(new PositionConfiguration());
+			modelBuilder.ApplyConfiguration(new LocationConfiguration());
 		}
 	}
 }

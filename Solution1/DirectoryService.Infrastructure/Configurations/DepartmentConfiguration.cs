@@ -52,6 +52,22 @@ namespace DirectoryService.Infrastructure.Configurations
 				.HasColumnName("department_depth")
 				.IsRequired();
 
+			// ========== СВЯЗИ МНОГИЕ КО МНОГИМ ==========
+
+			// Связь с Position через DepartmentPosition
+			builder
+				.HasMany(d => d.Positions)
+				.WithOne()
+				.HasForeignKey(dp => dp.DepartmentId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			// Связь с Location через DepartmentLocation
+			builder
+				.HasMany(d => d.Locations)
+				.WithOne()
+				.HasForeignKey(dl => dl.DepartmentId)
+				.OnDelete(DeleteBehavior.Cascade);
+
 			// ComplexProperty для LifeTime
 			builder.ComplexProperty(
 				d => d.LifeTime,
@@ -64,9 +80,6 @@ namespace DirectoryService.Infrastructure.Configurations
 					complexPropertyBuilder.Property(lt => lt.IsActive).HasColumnName("is_active").IsRequired();
 				}
 			);
-
-			builder.Ignore(d => d.Positions);
-			builder.Ignore(d => d.Locations);
 		}
 	}
 }

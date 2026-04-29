@@ -1,4 +1,5 @@
 using System.Text.Json;
+using DirectoryService.Domain.DepartmentsContext;
 using DirectoryService.Domain.LocationsContext;
 using DirectoryService.Domain.LocationsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
@@ -56,6 +57,12 @@ namespace DirectoryService.Infrastructure.Configurations
 					complexPropertyBuilder.Property(lt => lt.IsActive).HasColumnName("is_active").IsRequired();
 				}
 			);
+			// В LocationConfiguration добавь:
+			builder
+				.HasMany<DepartmentLocation>()
+				.WithOne()
+				.HasForeignKey(dl => dl.LocationId)
+				.OnDelete(DeleteBehavior.Cascade);
 		}
 	}
 }

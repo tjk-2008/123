@@ -1,3 +1,4 @@
+using DirectoryService.Domain.DepartmentsContext;
 using DirectoryService.Domain.PositionsContext;
 using DirectoryService.Domain.PositionsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
@@ -44,6 +45,12 @@ namespace DirectoryService.Infrastructure.Configurations
 					complexPropertyBuilder.Property(lt => lt.IsActive).HasColumnName("is_active").IsRequired();
 				}
 			);
+			// В PositionConfiguration добавь:
+			builder
+				.HasMany<DepartmentPosition>()
+				.WithOne()
+				.HasForeignKey(dp => dp.PositionId)
+				.OnDelete(DeleteBehavior.Cascade);
 		}
 	}
 }
