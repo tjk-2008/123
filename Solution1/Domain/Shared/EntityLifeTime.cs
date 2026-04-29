@@ -1,65 +1,65 @@
 ﻿namespace DirectoryService.Domain.Shared
 {
-    public sealed record EntityLifeTime
-    {
-        public DateTime CreatedAt { get; }
-        public DateTime UpdatedAt { get; }
-        public bool IsActive { get; }
+	public sealed record EntityLifeTime
+	{
+		public DateTime CreatedAt { get; }
+		public DateTime UpdatedAt { get; }
+		public bool IsActive { get; }
 
-        // Конструктор без параметров для EF Core
-        private EntityLifeTime()
-        {
-            CreatedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
-            IsActive = true;
-        }
+		// Конструктор без параметров для EF Core
+		private EntityLifeTime()
+		{
+			CreatedAt = DateTime.UtcNow;
+			UpdatedAt = DateTime.UtcNow;
+			IsActive = true;
+		}
 
-        private EntityLifeTime(DateTime createdAt, DateTime updatedAt, bool isActive)
-        {
-            CreatedAt = createdAt;
-            UpdatedAt = updatedAt;
-            IsActive = isActive;
-        }
+		private EntityLifeTime(DateTime createdAt, DateTime updatedAt, bool isActive)
+		{
+			CreatedAt = createdAt;
+			UpdatedAt = updatedAt;
+			IsActive = isActive;
+		}
 
-        public static EntityLifeTime Create()
-        {
-            DateTime now = DateTime.UtcNow;
-            return new EntityLifeTime(now, now, true);
-        }
+		public static EntityLifeTime Create()
+		{
+			DateTime now = DateTime.UtcNow;
+			return new EntityLifeTime(now, now, true);
+		}
 
-        public static EntityLifeTime Create(DateTime createdAt, DateTime updatedAt, bool isActive = true)
-        {
-            if (createdAt == DateTime.MinValue || createdAt == DateTime.MaxValue)
-            {
-                throw new ArgumentException("Некорректное значение даты создания.", nameof(createdAt));
-            }
+		public static EntityLifeTime Create(DateTime createdAt, DateTime updatedAt, bool isActive = true)
+		{
+			if (createdAt == DateTime.MinValue || createdAt == DateTime.MaxValue)
+			{
+				throw new ArgumentException("Некорректное значение даты создания.", nameof(createdAt));
+			}
 
-            if (updatedAt == DateTime.MinValue || updatedAt == DateTime.MaxValue)
-            {
-                throw new ArgumentException("Некорректное значение даты обновления.", nameof(updatedAt));
-            }
+			if (updatedAt == DateTime.MinValue || updatedAt == DateTime.MaxValue)
+			{
+				throw new ArgumentException("Некорректное значение даты обновления.", nameof(updatedAt));
+			}
 
-            if (updatedAt < createdAt)
-            {
-                throw new ArgumentException("Дата обновления не может быть меньше даты создания.", nameof(updatedAt));
-            }
+			if (updatedAt < createdAt)
+			{
+				throw new ArgumentException("Дата обновления не может быть меньше даты создания.", nameof(updatedAt));
+			}
 
-            return new EntityLifeTime(createdAt, updatedAt, isActive);
-        }
+			return new EntityLifeTime(createdAt, updatedAt, isActive);
+		}
 
-        public EntityLifeTime Update()
-        {
-            return new EntityLifeTime(CreatedAt, DateTime.UtcNow, IsActive);
-        }
+		public EntityLifeTime Update()
+		{
+			return new EntityLifeTime(CreatedAt, DateTime.UtcNow, IsActive);
+		}
 
-        public EntityLifeTime Archive()
-        {
-            return new EntityLifeTime(CreatedAt, DateTime.UtcNow, false);
-        }
+		public EntityLifeTime Archive()
+		{
+			return new EntityLifeTime(CreatedAt, DateTime.UtcNow, false);
+		}
 
-        public EntityLifeTime Activate()
-        {
-            return new EntityLifeTime(CreatedAt, DateTime.UtcNow, true);
-        }
-    }
+		public EntityLifeTime Activate()
+		{
+			return new EntityLifeTime(CreatedAt, DateTime.UtcNow, true);
+		}
+	}
 }

@@ -32,19 +32,18 @@ namespace DirectoryService.Infrastructure.Configurations
 				.HasColumnType("text")
 				.IsRequired();
 
-			builder.Property(p => p.IsActive).HasColumnName("is_active");
+			// Используем ComplexProperty для LifeTime (как в PDF, листинг 31)
+			builder.ComplexProperty(
+				p => p.LifeTime,
+				complexPropertyBuilder =>
+				{
+					complexPropertyBuilder.Property(lt => lt.CreatedAt).HasColumnName("created_at").IsRequired();
 
-			builder
-				.Property(p => p.LifeTime)
-				.HasColumnName("life_time")
-				.HasConversion(lt => $"{lt.CreatedAt}|{lt.UpdatedAt}|{lt.IsActive}", value => ParseLifeTime(value))
-				.IsRequired();
-		}
+					complexPropertyBuilder.Property(lt => lt.UpdatedAt).HasColumnName("updated_at");
 
-		private static EntityLifeTime ParseLifeTime(string value)
-		{
-			string[] parts = value.Split('|');
-			return EntityLifeTime.Create(DateTime.Parse(parts[0]), DateTime.Parse(parts[1]), bool.Parse(parts[2]));
+					complexPropertyBuilder.Property(lt => lt.IsActive).HasColumnName("is_active").IsRequired();
+				}
+			);
 		}
 	}
 }
