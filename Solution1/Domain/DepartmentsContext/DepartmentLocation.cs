@@ -4,22 +4,22 @@ using DirectoryService.Domain.LocationsContext.ValueObjects;
 
 namespace DirectoryService.Domain.DepartmentsContext
 {
-    public class DepartmentLocation
-    {
-        public DepartmentId DepartmentId { get; }
-        public LocationId LocationId { get; }
+	public class DepartmentLocation
+	{
+		public DepartmentId DepartmentId { get; }
+		public LocationId LocationId { get; }
 
-        // Конструктор без параметров для EF Core
-        private DepartmentLocation()
-        {
-            DepartmentId = null!;
-            LocationId = null!;
-        }
+		// Конструктор без параметров для EF Core
+		private DepartmentLocation()
+		{
+			DepartmentId = null!;
+			LocationId = null!;
+		}
 
-        public DepartmentLocation(DepartmentId departmentId, LocationId locationId)
-        {
-            DepartmentId = departmentId;
-            LocationId = locationId;
-        }
-    }
+		public DepartmentLocation(DepartmentId departmentId, LocationId locationId)
+		{
+			DepartmentId = departmentId;
+			LocationId = locationId;
+		}
+	}
 }

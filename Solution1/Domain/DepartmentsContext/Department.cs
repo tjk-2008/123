@@ -7,159 +7,182 @@ using DirectoryService.Domain.Shared;
 
 namespace DirectoryService.Domain.DepartmentsContext
 {
-    public class Department
-    {
-        public DepartmentId Id { get; }
-        public DepartmentName Name { get; }
-        public DepartmentIdentifier Identifier { get; }
-        public DepartmentId? ParentId { get; }
-        public DepartmentPath Path { get; }
-        public DepartmentDepth Depth { get; }
-        public bool IsActive { get; }
-        public EntityLifeTime LifeTime { get; private set; }
+	public class Department
+	{
+		public DepartmentId Id { get; }
+		public DepartmentName Name { get; }
+		public DepartmentIdentifier Identifier { get; }
+		public DepartmentId? ParentId { get; }
+		public DepartmentPath Path { get; }
+		public DepartmentDepth Depth { get; }
+		public bool IsActive { get; }
+		public EntityLifeTime LifeTime { get; private set; }
 
-        private readonly List<DepartmentPosition> _positions = new();
-        private readonly List<DepartmentLocation> _locations = new();
+		private readonly List<DepartmentPosition> _positions = new();
+		private readonly List<DepartmentLocation> _locations = new();
 
-        public IReadOnlyList<DepartmentPosition> Positions => _positions.AsReadOnly();
-        public IReadOnlyList<DepartmentLocation> Locations => _locations.AsReadOnly();
+		public IReadOnlyList<DepartmentPosition> Positions => _positions.AsReadOnly();
+		public IReadOnlyList<DepartmentLocation> Locations => _locations.AsReadOnly();
 
-        // Конструктор без параметров для EF Core
-        private Department() {
-            Id = null!;
-            Name = null!;
-            Identifier = null!;
-            Path = null!;
-            Depth = null!;
-            LifeTime = null!;
-        }
+		// Конструктор без параметров для EF Core
+		private Department()
+		{
+			Id = null!;
+			Name = null!;
+			Identifier = null!;
+			Path = null!;
+			Depth = null!;
+			LifeTime = null!;
+		}
 
-        public static Department CreateRoot(DepartmentName name, DepartmentIdentifier identifier, bool isActive = true)
-        {
-            DepartmentId id = DepartmentId.Create();
-            DepartmentPath path = DepartmentPath.CreateForRoot(identifier.Value);
-            DepartmentDepth depth = DepartmentDepth.CalculateFromPath(path);
-            return new Department(id, name, identifier, null, path, depth, isActive, EntityLifeTime.Create());
-        }
+		public static Department CreateRoot(DepartmentName name, DepartmentIdentifier identifier, bool isActive = true)
+		{
+			DepartmentId id = DepartmentId.Create();
+			DepartmentPath path = DepartmentPath.CreateForRoot(identifier.Value);
+			DepartmentDepth depth = DepartmentDepth.CalculateFromPath(path);
+			return new Department(id, name, identifier, null, path, depth, isActive, EntityLifeTime.Create());
+		}
 
-        public static Department CreateChild(DepartmentName name, DepartmentIdentifier identifier, Department parent, bool isActive = true)
-        {
-            DepartmentId id = DepartmentId.Create();
-            DepartmentPath path = DepartmentPath.CreateForChild(parent.Path, identifier.Value);
-            DepartmentDepth depth = DepartmentDepth.CalculateFromPath(path);
-            return new Department(id, name, identifier, parent.Id, path, depth, isActive, EntityLifeTime.Create());
-        }
+		public static Department CreateChild(
+			DepartmentName name,
+			DepartmentIdentifier identifier,
+			Department parent,
+			bool isActive = true
+		)
+		{
+			DepartmentId id = DepartmentId.Create();
+			DepartmentPath path = DepartmentPath.CreateForChild(parent.Path, identifier.Value);
+			DepartmentDepth depth = DepartmentDepth.CalculateFromPath(path);
+			return new Department(id, name, identifier, parent.Id, path, depth, isActive, EntityLifeTime.Create());
+		}
 
-        private Department(DepartmentId id, DepartmentName name, DepartmentIdentifier identifier, DepartmentId? parentId,
-            DepartmentPath path, DepartmentDepth depth, bool isActive, EntityLifeTime lifeTime)
-        {
-            Id = id;
-            Name = name;
-            Identifier = identifier;
-            ParentId = parentId;
-            Path = path;
-            Depth = depth;
-            IsActive = isActive;
-            LifeTime = lifeTime;
-        }
+		private Department(
+			DepartmentId id,
+			DepartmentName name,
+			DepartmentIdentifier identifier,
+			DepartmentId? parentId,
+			DepartmentPath path,
+			DepartmentDepth depth,
+			bool isActive,
+			EntityLifeTime lifeTime
+		)
+		{
+			Id = id;
+			Name = name;
+			Identifier = identifier;
+			ParentId = parentId;
+			Path = path;
+			Depth = depth;
+			IsActive = isActive;
+			LifeTime = lifeTime;
+		}
 
-        public Department ChangeActivity(bool isActive)
-        {
-            return new Department(Id, Name, Identifier, ParentId, Path, Depth, isActive,
-                EntityLifeTime.Create(LifeTime.CreatedAt, DateTime.UtcNow, isActive));
-        }
+		public Department ChangeActivity(bool isActive)
+		{
+			return new Department(
+				Id,
+				Name,
+				Identifier,
+				ParentId,
+				Path,
+				Depth,
+				isActive,
+				EntityLifeTime.Create(LifeTime.CreatedAt, DateTime.UtcNow, isActive)
+			);
+		}
 
-        public bool IsRoot()
-        {
-            return ParentId == null;
-        }
+		public bool IsRoot()
+		{
+			return ParentId == null;
+		}
 
-        public bool IsChildOf(Department parent)
-        {
-            return parent != null && Path.Value.StartsWith(parent.Path.Value + ".", StringComparison.InvariantCultureIgnoreCase);
-        }
+		public bool IsChildOf(Department parent)
+		{
+			return parent != null
+				&& Path.Value.StartsWith(parent.Path.Value + ".", StringComparison.InvariantCultureIgnoreCase);
+		}
 
-        public void AddPosition(Position position, Rank rank)
-        {
-            ArgumentNullException.ThrowIfNull(position);
-            ArgumentNullException.ThrowIfNull(rank);
+		public void AddPosition(Position position, Rank rank)
+		{
+			ArgumentNullException.ThrowIfNull(position);
+			ArgumentNullException.ThrowIfNull(rank);
 
-            if (!LifeTime.IsActive)
-            {
-                throw new InvalidOperationException("Нельзя добавить должность в архивированное подразделение");
-            }
+			if (!LifeTime.IsActive)
+			{
+				throw new InvalidOperationException("Нельзя добавить должность в архивированное подразделение");
+			}
 
-            if (_positions.Any(p => p.PositionId == position.Id))
-            {
-                throw new ArgumentException("Должность уже добавлена в подразделение");
-            }
+			if (_positions.Any(p => p.PositionId == position.Id))
+			{
+				throw new ArgumentException("Должность уже добавлена в подразделение");
+			}
 
-            _positions.Add(new DepartmentPosition(Id, position.Id, rank));
-            LifeTime = LifeTime.Update();
-        }
+			_positions.Add(new DepartmentPosition(Id, position.Id, rank));
+			LifeTime = LifeTime.Update();
+		}
 
-        public void ChangePositionRank(PositionId positionId, Rank newRank)
-        {
-            DepartmentPosition? deptPosition = _positions.FirstOrDefault(p => p.PositionId == positionId);
-            if (deptPosition == null)
-            {
-                throw new ArgumentException("Должность не найдена в подразделении");
-            }
+		public void ChangePositionRank(PositionId positionId, Rank newRank)
+		{
+			DepartmentPosition? deptPosition = _positions.FirstOrDefault(p => p.PositionId == positionId);
+			if (deptPosition == null)
+			{
+				throw new ArgumentException("Должность не найдена в подразделении");
+			}
 
-            deptPosition.ChangeRank(newRank);
-            LifeTime = LifeTime.Update();
-        }
+			deptPosition.ChangeRank(newRank);
+			LifeTime = LifeTime.Update();
+		}
 
-        public void RemovePosition(PositionId positionId)
-        {
-            DepartmentPosition? deptPosition = _positions.FirstOrDefault(p => p.PositionId == positionId);
-            if (deptPosition == null)
-            {
-                throw new ArgumentException("Должность не найдена в подразделении");
-            }
+		public void RemovePosition(PositionId positionId)
+		{
+			DepartmentPosition? deptPosition = _positions.FirstOrDefault(p => p.PositionId == positionId);
+			if (deptPosition == null)
+			{
+				throw new ArgumentException("Должность не найдена в подразделении");
+			}
 
-            _positions.Remove(deptPosition);
-            LifeTime = LifeTime.Update();
-        }
+			_positions.Remove(deptPosition);
+			LifeTime = LifeTime.Update();
+		}
 
-        public void AddLocation(Location location)
-        {
-            ArgumentNullException.ThrowIfNull(location);
+		public void AddLocation(Location location)
+		{
+			ArgumentNullException.ThrowIfNull(location);
 
-            if (!LifeTime.IsActive)
-            {
-                throw new InvalidOperationException("Нельзя добавить офис в архивированное подразделение");
-            }
+			if (!LifeTime.IsActive)
+			{
+				throw new InvalidOperationException("Нельзя добавить офис в архивированное подразделение");
+			}
 
-            if (_locations.Any(l => l.LocationId == location.Id))
-            {
-                throw new ArgumentException("Офис уже добавлен в подразделение");
-            }
+			if (_locations.Any(l => l.LocationId == location.Id))
+			{
+				throw new ArgumentException("Офис уже добавлен в подразделение");
+			}
 
-            _locations.Add(new DepartmentLocation(Id, location.Id));
-            LifeTime = LifeTime.Update();
-        }
+			_locations.Add(new DepartmentLocation(Id, location.Id));
+			LifeTime = LifeTime.Update();
+		}
 
-        public void RemoveLocation(LocationId locationId)
-        {
-            if (!LifeTime.IsActive)
-            {
-                throw new InvalidOperationException("Нельзя удалить офис из архивированного подразделения");
-            }
+		public void RemoveLocation(LocationId locationId)
+		{
+			if (!LifeTime.IsActive)
+			{
+				throw new InvalidOperationException("Нельзя удалить офис из архивированного подразделения");
+			}
 
-            DepartmentLocation? deptLocation = _locations.FirstOrDefault(l => l.LocationId == locationId);
-            if (deptLocation == null)
-            {
-                throw new ArgumentException("Офис не найден в подразделении");
-            }
+			DepartmentLocation? deptLocation = _locations.FirstOrDefault(l => l.LocationId == locationId);
+			if (deptLocation == null)
+			{
+				throw new ArgumentException("Офис не найден в подразделении");
+			}
 
-            _locations.Remove(deptLocation);
-            LifeTime = LifeTime.Update();
-        }
+			_locations.Remove(deptLocation);
+			LifeTime = LifeTime.Update();
+		}
 
-        public bool HasLocation(LocationId locationId)
-        {
-            return _locations.Any(l => l.LocationId == locationId);
-        }
-    }
+		public bool HasLocation(LocationId locationId)
+		{
+			return _locations.Any(l => l.LocationId == locationId);
+		}
+	}
 }

@@ -52,22 +52,34 @@ namespace DirectoryService.Infrastructure.Configurations
 				.HasColumnName("department_depth")
 				.IsRequired();
 
-			builder.Property(d => d.IsActive).HasColumnName("is_active");
+			// ========== СВЯЗИ МНОГИЕ КО МНОГИМ ==========
 
+			// Связь с Position через DepartmentPosition
 			builder
-				.Property(d => d.LifeTime)
-				.HasColumnName("life_time")
-				.HasConversion(lt => $"{lt.CreatedAt}|{lt.UpdatedAt}|{lt.IsActive}", value => ParseLifeTime(value))
-				.IsRequired();
+				.HasMany(d => d.Positions)
+				.WithOne()
+				.HasForeignKey(dp => dp.DepartmentId)
+				.OnDelete(DeleteBehavior.Cascade);
 
-			builder.Ignore(d => d.Positions);
-			builder.Ignore(d => d.Locations);
-		}
+			// Связь с Location через DepartmentLocation
+			builder
+				.HasMany(d => d.Locations)
+				.WithOne()
+				.HasForeignKey(dl => dl.DepartmentId)
+				.OnDelete(DeleteBehavior.Cascade);
 
-		private static EntityLifeTime ParseLifeTime(string value)
-		{
-			string[] parts = value.Split('|');
-			return EntityLifeTime.Create(DateTime.Parse(parts[0]), DateTime.Parse(parts[1]), bool.Parse(parts[2]));
+			// ComplexProperty для LifeTime
+			builder.ComplexProperty(
+				d => d.LifeTime,
+				complexPropertyBuilder =>
+				{
+					complexPropertyBuilder.Property(lt => lt.CreatedAt).HasColumnName("created_at").IsRequired();
+
+					complexPropertyBuilder.Property(lt => lt.UpdatedAt).HasColumnName("updated_at");
+
+					complexPropertyBuilder.Property(lt => lt.IsActive).HasColumnName("is_active").IsRequired();
+				}
+			);
 		}
 	}
 }
