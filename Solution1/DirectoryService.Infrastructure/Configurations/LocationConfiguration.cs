@@ -27,7 +27,6 @@ namespace DirectoryService.Infrastructure.Configurations
 				.HasMaxLength(128)
 				.IsRequired();
 
-			// Address - JSONB
 			builder
 				.Property(l => l.Address)
 				.HasConversion(
@@ -45,7 +44,6 @@ namespace DirectoryService.Infrastructure.Configurations
 				.HasMaxLength(255)
 				.IsRequired();
 
-			// ComplexProperty для LifeTime
 			builder.ComplexProperty(
 				l => l.LifeTime,
 				complexPropertyBuilder =>
@@ -56,7 +54,6 @@ namespace DirectoryService.Infrastructure.Configurations
 				}
 			);
 
-			// Связь с DepartmentLocation (многие ко многим)
 			builder
 				.HasMany<DepartmentLocation>()
 				.WithOne()
