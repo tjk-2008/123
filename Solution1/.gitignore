@@ -1,0 +1,15 @@
+.vs/
+build_output/
+*/bin/
+*/obj/
+*.user
+*.suo
+*.cache
+*.log
+[Dd]ebug/
+[Rr]elease/
+*.pdb
+*.dll
+*.exe
+*.nupkg
+*.snupkg

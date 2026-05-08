@@ -1,3 +1,4 @@
+using DirectoryService.Domain.Contracts;
 using DirectoryService.Domain.PositionsContext;
 using DirectoryService.Domain.PositionsContext.ValueObjects;
 using DirectoryService.Domain.Shared;
@@ -5,23 +6,25 @@ using MediatR;
 
 namespace DirectoryService.Application.Commands.CreatePosition;
 
-public class CreatePositionCommandHandler : IRequestHandler<CreatePositionCommand, Guid>
+public class CreatePositionCommandHandler(IPositionRepository repository) : IRequestHandler<CreatePositionCommand, Guid>
 {
-    public async Task<Guid> Handle(CreatePositionCommand request, CancellationToken cancellationToken)
-    {
-        // TODO: Добавить проверку уникальности через репозиторий
-        // TODO: Сохранять в базу данных через репозиторий
+	public async Task<Guid> Handle(CreatePositionCommand request, CancellationToken cancellationToken)
+	{
+		if (!await repository.IsNameUniqueAsync(request.Name, cancellationToken))
+		{
+			throw new InvalidOperationException("Должность с таким названием уже существует");
+		}
 
-        Position position = new Position(
-            PositionId.Create(),
-            PositionName.Create(request.Name),
-            PositionDescription.Create(request.Description),
-            true,
-            EntityLifeTime.Create()
-        );
+		Position position = new(
+			PositionId.Create(),
+			PositionName.Create(request.Name),
+			PositionDescription.Create(request.Description),
+			true,
+			EntityLifeTime.Create()
+		);
 
-        await Task.CompletedTask;
+		await repository.AddAsync(position, cancellationToken);
 
-        return position.Id.Value;
-    }
+		return position.Id.Value;
+	}
 }

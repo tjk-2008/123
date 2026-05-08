@@ -4,21 +4,33 @@ using DirectoryService.Domain.PositionsContext;
 using DirectoryService.Infrastructure.Configurations;
 using DirectoryService.Infrastructure.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace DirectoryService.Infrastructure
 {
 	public class DirectoryDbContext : DbContext
 	{
-		private readonly DatabaseOptions? _options;
+		private readonly DatabaseOptions _options;
 
-		public DirectoryDbContext(DatabaseOptions options)
+		// Конструктор для DI (через IOptions)
+		public DirectoryDbContext(IOptions<DatabaseOptions> options)
 		{
-			_options = options;
+			_options =
+				options.Value
+				?? throw new InvalidOperationException("DatabaseOptions не зарегистрированы в DI контейнере");
 		}
 
+		// Конструктор без параметров ТОЛЬКО для миграций (Design Time)
 		public DirectoryDbContext()
 		{
-			_options = null;
+			_options = new DatabaseOptions
+			{
+				Host = "localhost",
+				Port = 5432,
+				Database = "directory_service",
+				Username = "postgres",
+				Password = "postgres",
+			};
 		}
 
 		public DbSet<Position> Positions { get; set; }
@@ -31,26 +43,23 @@ namespace DirectoryService.Infrastructure
 		{
 			if (!optionsBuilder.IsConfigured)
 			{
-				if (_options != null)
+				if (_options == null)
 				{
-					string connectionString =
-						$"Host={_options.Host};Port={_options.Port};Database={_options.Database};Username={_options.Username};Password={_options.Password}";
-					optionsBuilder.UseNpgsql(connectionString);
+					throw new InvalidOperationException("DatabaseOptions не инициализированы");
 				}
-				else
-				{
-					optionsBuilder.UseNpgsql(
-						"Host=localhost;Port=5432;Database=directory_service;Username=postgres;Password=postgres"
-					);
-				}
+
+				optionsBuilder.UseNpgsql(_options.GetConnectionString());
 			}
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
+			// Сначала применяем конфигурации связующих таблиц
 			modelBuilder.ApplyConfiguration(new DepartmentPositionConfiguration());
 			modelBuilder.ApplyConfiguration(new DepartmentLocationConfiguration());
+
+			// Затем конфигурации основных сущностей
+			modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
 			modelBuilder.ApplyConfiguration(new PositionConfiguration());
 			modelBuilder.ApplyConfiguration(new LocationConfiguration());
 		}
