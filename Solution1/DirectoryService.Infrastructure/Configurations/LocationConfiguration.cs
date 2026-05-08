@@ -27,7 +27,6 @@ namespace DirectoryService.Infrastructure.Configurations
 				.HasMaxLength(128)
 				.IsRequired();
 
-			// Address - JSONB (как в PDF, листинг 33-34)
 			builder
 				.Property(l => l.Address)
 				.HasConversion(
@@ -45,19 +44,16 @@ namespace DirectoryService.Infrastructure.Configurations
 				.HasMaxLength(255)
 				.IsRequired();
 
-			// ComplexProperty для LifeTime
 			builder.ComplexProperty(
 				l => l.LifeTime,
 				complexPropertyBuilder =>
 				{
 					complexPropertyBuilder.Property(lt => lt.CreatedAt).HasColumnName("created_at").IsRequired();
-
 					complexPropertyBuilder.Property(lt => lt.UpdatedAt).HasColumnName("updated_at");
-
 					complexPropertyBuilder.Property(lt => lt.IsActive).HasColumnName("is_active").IsRequired();
 				}
 			);
-			// В LocationConfiguration добавь:
+
 			builder
 				.HasMany<DepartmentLocation>()
 				.WithOne()
