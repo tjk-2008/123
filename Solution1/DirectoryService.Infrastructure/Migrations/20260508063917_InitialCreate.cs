@@ -6,23 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DirectoryService.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "department_locations",
-                columns: table => new
-                {
-                    department_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    location_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_department_locations", x => new { x.department_id, x.location_id });
-                });
-
             migrationBuilder.CreateTable(
                 name: "department_positions",
                 columns: table => new
@@ -62,7 +50,9 @@ namespace DirectoryService.Infrastructure.Migrations
                     location_name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     location_address = table.Column<string>(type: "jsonb", nullable: false),
                     iana_time_zone = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    life_time = table.Column<string>(type: "text", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -83,6 +73,29 @@ namespace DirectoryService.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_positions", x => x.id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "department_locations",
+                columns: table => new
+                {
+                    department_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    location_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_department_locations", x => new { x.department_id, x.location_id });
+                    table.ForeignKey(
+                        name: "FK_department_locations_locations_location_id",
+                        column: x => x.location_id,
+                        principalTable: "locations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_department_locations_location_id",
+                table: "department_locations",
+                column: "location_id");
         }
 
         /// <inheritdoc />
@@ -98,10 +111,10 @@ namespace DirectoryService.Infrastructure.Migrations
                 name: "departments");
 
             migrationBuilder.DropTable(
-                name: "locations");
+                name: "positions");
 
             migrationBuilder.DropTable(
-                name: "positions");
+                name: "locations");
         }
     }
 }
