@@ -36,6 +36,16 @@ public class LocationRepository : ILocationRepository
 		);
 	}
 
+	public async Task<IEnumerable<Location>> GetManyByIds(
+		IEnumerable<LocationId> ids,
+		CancellationToken cancellationToken = default
+	)
+	{
+		return await _dbContext
+			.Locations.Where(l => ids.Contains(l.Id) && l.LifeTime.IsActive)
+			.ToListAsync(cancellationToken);
+	}
+
 	public async Task AddAsync(Location location, CancellationToken cancellationToken = default)
 	{
 		await _dbContext.Locations.AddAsync(location, cancellationToken);
@@ -46,5 +56,18 @@ public class LocationRepository : ILocationRepository
 	{
 		_dbContext.Locations.Update(location);
 		await _dbContext.SaveChangesAsync(cancellationToken);
+	}
+
+	public async Task Delete(Location location, CancellationToken cancellationToken = default)
+	{
+		_dbContext.Locations.Remove(location);
+		await _dbContext.SaveChangesAsync(cancellationToken);
+	}
+
+	public async Task<bool> IsNameUniqueAsync(string name, CancellationToken cancellationToken = default)
+	{
+		LocationName locationName = LocationName.Create(name);
+		Location? existing = await GetByName(locationName, cancellationToken);
+		return existing == null;
 	}
 }

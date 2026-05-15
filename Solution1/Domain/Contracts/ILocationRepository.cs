@@ -8,6 +8,12 @@ public interface ILocationRepository
 	Task<Location?> GetById(Guid id, CancellationToken cancellationToken = default);
 	Task<Location?> GetById(LocationId id, CancellationToken cancellationToken = default);
 	Task<Location?> GetByName(LocationName name, CancellationToken cancellationToken = default);
+	Task<IEnumerable<Location>> GetManyByIds(
+		IEnumerable<LocationId> ids,
+		CancellationToken cancellationToken = default
+	);
 	Task AddAsync(Location location, CancellationToken cancellationToken = default);
 	Task Update(Location location, CancellationToken cancellationToken = default);
+	Task Delete(Location location, CancellationToken cancellationToken = default);
+	Task<bool> IsNameUniqueAsync(string name, CancellationToken cancellationToken = default);
 }

@@ -36,6 +36,16 @@ public class PositionRepository : IPositionRepository
 		);
 	}
 
+	public async Task<IEnumerable<Position>> GetManyByIds(
+		IEnumerable<PositionId> ids,
+		CancellationToken cancellationToken = default
+	)
+	{
+		return await _dbContext
+			.Positions.Where(p => ids.Contains(p.Id) && p.LifeTime.IsActive)
+			.ToListAsync(cancellationToken);
+	}
+
 	public async Task AddAsync(Position position, CancellationToken cancellationToken = default)
 	{
 		await _dbContext.Positions.AddAsync(position, cancellationToken);
@@ -46,5 +56,16 @@ public class PositionRepository : IPositionRepository
 	{
 		_dbContext.Positions.Update(position);
 		await _dbContext.SaveChangesAsync(cancellationToken);
+	}
+
+	public async Task Delete(Position position, CancellationToken cancellationToken = default)
+	{
+		_dbContext.Positions.Remove(position);
+		await _dbContext.SaveChangesAsync(cancellationToken);
+	}
+
+	public async Task<bool> IsNameUniqueAsync(string name, CancellationToken cancellationToken = default)
+	{
+		return !await _dbContext.Positions.AnyAsync(p => p.Name.Value == name, cancellationToken);
 	}
 }

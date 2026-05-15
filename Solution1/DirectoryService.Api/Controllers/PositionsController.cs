@@ -1,22 +1,26 @@
 using DirectoryService.Api.DTOs.Position;
-using DirectoryService.Application.Commands.CreatePosition;
-using DirectoryService.Application.Commands.UpdatePosition;
-using MediatR;
+using DirectoryService.Application.Handlers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Api.Controllers;
 
 [ApiController]
 [Route("api/positions")]
-public class PositionsController(IMediator mediator) : ControllerBase
+public class PositionsController : ControllerBase
 {
+	private readonly PositionHandlers _handlers;
+
+	public PositionsController(PositionHandlers handlers)
+	{
+		_handlers = handlers;
+	}
+
 	[HttpPost]
 	public async Task<IActionResult> Create([FromBody] CreatePositionRequest request)
 	{
 		try
 		{
-			CreatePositionCommand command = new(request.Name, request.Description);
-			Guid id = await mediator.Send(command);
+			Guid id = await _handlers.CreatePosition(request.Name, request.Description);
 			return CreatedAtAction(nameof(Create), new { id }, new { Id = id });
 		}
 		catch (ArgumentException ex)
@@ -39,8 +43,7 @@ public class PositionsController(IMediator mediator) : ControllerBase
 				return BadRequest("Название должности не может быть пустым");
 			}
 
-			UpdatePositionCommand command = new(id, request.Name);
-			Guid updatedId = await mediator.Send(command);
+			Guid updatedId = await _handlers.UpdatePosition(id, request.Name);
 			return Ok(new { Id = updatedId });
 		}
 		catch (InvalidOperationException ex)
