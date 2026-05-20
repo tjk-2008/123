@@ -12,31 +12,6 @@ namespace DirectoryService.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "department_locations",
-                columns: table => new
-                {
-                    department_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    location_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_department_locations", x => new { x.department_id, x.location_id });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "department_positions",
-                columns: table => new
-                {
-                    department_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    position_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    rank = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_department_positions", x => new { x.department_id, x.position_id });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "departments",
                 columns: table => new
                 {
@@ -87,6 +62,65 @@ namespace DirectoryService.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_positions", x => x.id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "department_locations",
+                columns: table => new
+                {
+                    department_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    location_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_department_locations", x => new { x.department_id, x.location_id });
+                    table.ForeignKey(
+                        name: "FK_department_locations_departments_department_id",
+                        column: x => x.department_id,
+                        principalTable: "departments",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_department_locations_locations_location_id",
+                        column: x => x.location_id,
+                        principalTable: "locations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "department_positions",
+                columns: table => new
+                {
+                    department_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    position_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    rank = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_department_positions", x => new { x.department_id, x.position_id });
+                    table.ForeignKey(
+                        name: "FK_department_positions_departments_department_id",
+                        column: x => x.department_id,
+                        principalTable: "departments",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_department_positions_positions_position_id",
+                        column: x => x.position_id,
+                        principalTable: "positions",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_department_locations_location_id",
+                table: "department_locations",
+                column: "location_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_department_positions_position_id",
+                table: "department_positions",
+                column: "position_id");
         }
 
         /// <inheritdoc />
@@ -99,10 +133,10 @@ namespace DirectoryService.Infrastructure.Migrations
                 name: "department_positions");
 
             migrationBuilder.DropTable(
-                name: "departments");
+                name: "locations");
 
             migrationBuilder.DropTable(
-                name: "locations");
+                name: "departments");
 
             migrationBuilder.DropTable(
                 name: "positions");
