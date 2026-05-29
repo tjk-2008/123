@@ -1,5 +1,6 @@
 using DirectoryService.Domain.Contracts;
 using DirectoryService.Domain.LocationsContext;
+using DirectoryService.Domain.LocationsContext.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Repositories;
@@ -13,14 +14,60 @@ public class LocationRepository : ILocationRepository
 		_dbContext = dbContext;
 	}
 
+	public async Task<Location?> GetById(Guid id, CancellationToken cancellationToken = default)
+	{
+		LocationId locationId = LocationId.Create(id);
+		return await GetById(locationId, cancellationToken);
+	}
+
+	public async Task<Location?> GetById(LocationId id, CancellationToken cancellationToken = default)
+	{
+		return await _dbContext.Locations.FirstOrDefaultAsync(
+			l => l.Id == id && l.LifeTime.IsActive,
+			cancellationToken
+		);
+	}
+
+	public async Task<Location?> GetByName(LocationName name, CancellationToken cancellationToken = default)
+	{
+		return await _dbContext.Locations.FirstOrDefaultAsync(
+			l => l.Name == name && l.LifeTime.IsActive,
+			cancellationToken
+		);
+	}
+
+	public async Task<IEnumerable<Location>> GetManyByIds(
+		IEnumerable<LocationId> ids,
+		CancellationToken cancellationToken = default
+	)
+	{
+		return await _dbContext
+			.Locations.Where(l => ids.Contains(l.Id) && l.LifeTime.IsActive)
+			.ToListAsync(cancellationToken);
+	}
+
 	public async Task AddAsync(Location location, CancellationToken cancellationToken = default)
 	{
 		await _dbContext.Locations.AddAsync(location, cancellationToken);
 		await _dbContext.SaveChangesAsync(cancellationToken);
 	}
 
+	public async Task Update(Location location, CancellationToken cancellationToken = default)
+	{
+		_dbContext.Locations.Update(location);
+		await _dbContext.SaveChangesAsync(cancellationToken);
+	}
+
+	public async Task Delete(Location location, CancellationToken cancellationToken = default)
+	{
+		_dbContext.Locations.Remove(location);
+		await _dbContext.SaveChangesAsync(cancellationToken);
+	}
+
 	public async Task<bool> IsNameUniqueAsync(string name, CancellationToken cancellationToken = default)
 	{
-		return !await _dbContext.Locations.AnyAsync(l => l.Name.Value == name, cancellationToken);
+		LocationName locationName = LocationName.Create(name);
+		Location? existing = await GetByName(locationName, cancellationToken);
+		return existing == null;
 	}
 }

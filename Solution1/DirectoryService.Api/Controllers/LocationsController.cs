@@ -1,6 +1,5 @@
 using DirectoryService.Api.DTOs.Location;
-using DirectoryService.Application.Commands.CreateLocation;
-using MediatR;
+using DirectoryService.Application.Handlers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Api.Controllers;
@@ -9,11 +8,11 @@ namespace DirectoryService.Api.Controllers;
 [Route("api/locations")]
 public class LocationsController : ControllerBase
 {
-	private readonly IMediator _mediator;
+	private readonly LocationHandlers _handlers;
 
-	public LocationsController(IMediator mediator)
+	public LocationsController(LocationHandlers handlers)
 	{
-		_mediator = mediator;
+		_handlers = handlers;
 	}
 
 	[HttpPost]
@@ -21,8 +20,7 @@ public class LocationsController : ControllerBase
 	{
 		try
 		{
-			var command = new CreateLocationCommand(request.Name, request.Address, request.TimeZone);
-			var id = await _mediator.Send(command);
+			Guid id = await _handlers.CreateLocation(request.Name, request.Address, request.TimeZone);
 			return CreatedAtAction(nameof(Create), new { id }, new { Id = id });
 		}
 		catch (ArgumentException ex)
@@ -32,6 +30,24 @@ public class LocationsController : ControllerBase
 		catch (InvalidOperationException ex)
 		{
 			return Conflict(ex.Message);
+		}
+	}
+
+	[HttpPut("{id}")]
+	public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLocationRequest request)
+	{
+		try
+		{
+			Guid updatedId = await _handlers.UpdateLocation(id, request.Name, request.Address, request.TimeZone);
+			return Ok(new { Id = updatedId });
+		}
+		catch (InvalidOperationException ex)
+		{
+			return NotFound(ex.Message);
+		}
+		catch (ArgumentException ex)
+		{
+			return BadRequest(ex.Message);
 		}
 	}
 }
