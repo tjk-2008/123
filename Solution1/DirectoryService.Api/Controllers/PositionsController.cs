@@ -55,4 +55,18 @@ public class PositionsController : ControllerBase
 			return BadRequest(ex.Message);
 		}
 	}
+
+	[HttpDelete]
+	public async Task<IActionResult> DeleteMany([FromBody] DeletePositionsRequest request)
+	{
+		try
+		{
+			IReadOnlyCollection<Guid> deletedIds = await _handlers.DeletePositions(request.Ids);
+			return Ok(new { DeletedIds = deletedIds });
+		}
+		catch (InvalidOperationException ex)
+		{
+			return NotFound(ex.Message);
+		}
+	}
 }

@@ -50,4 +50,18 @@ public class LocationsController : ControllerBase
 			return BadRequest(ex.Message);
 		}
 	}
+
+	[HttpDelete("{id}")]
+	public async Task<IActionResult> Delete(Guid id)
+	{
+		try
+		{
+			Guid deletedId = await _handlers.DeleteLocation(id);
+			return Ok(new { Id = deletedId });
+		}
+		catch (InvalidOperationException ex)
+		{
+			return NotFound(ex.Message);
+		}
+	}
 }
